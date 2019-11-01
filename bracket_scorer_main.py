@@ -9,18 +9,18 @@ from pygame.locals import *
 FPS = 30  # frames per second, the general speed of the program
 WINDOWWIDTH = 800  # size of window's width in pixels
 WINDOWHEIGHT = 480  # size of windows' height in pixels
-REVEALSPEED = 8  # speed boxes' sliding reveals and covers
-BOXSIZE = 40  # size of box height & width in pixels
-GAPSIZE = 10  # size of gap between boxes in pixels
-BOARDWIDTH = 10  # number of columns of icons
-BOARDHEIGHT = 7  # number of rows of icons
-assert (BOARDWIDTH * BOARDHEIGHT) % 2 == 0, 'Board needs to have an even number of boxes for pairs of matches.'
-XMARGIN = int((WINDOWWIDTH - (BOARDWIDTH * (BOXSIZE + GAPSIZE))) / 2)
-YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
+#REVEALSPEED = 8  # speed boxes' sliding reveals and covers
+#BOXSIZE = 40  # size of box height & width in pixels
+#GAPSIZE = 10  # size of gap between boxes in pixels
+#BOARDWIDTH = 10  # number of columns of icons
+#BOARDHEIGHT = 7  # number of rows of icons
+#assert (BOARDWIDTH * BOARDHEIGHT) % 2 == 0, 'Board needs to have an even number of boxes for pairs of matches.'
+#XMARGIN = int((WINDOWWIDTH - (BOARDWIDTH * (BOXSIZE + GAPSIZE))) / 2)
+#YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
 LEFTMARGIN = 20
 RIGHTMARGIN = 20
 
-PLAYERBOXHeight = 30
+PLAYERBOXHeight = 30 # REFERENCE 7 letters font size 30
 PLAYERBOXLength = 150
 PLAYERBOXGap = 10
 
@@ -41,7 +41,6 @@ BGCOLOR = NAVYBLUE
 LIGHTBGCOLOR = GRAY
 PLAYERBOXColor = BLUE
 HIGHLIGHTCOLOR = BLUE
-
 
 
 
@@ -107,7 +106,7 @@ def initBracket(screen):
     #
     #
     #     # Target TODO Better center the text with textVar.get_width(), get_heigth() & round()
-    # screen.blit(textPlayer1,((colScore+colMark/2-textPlayer1.get_width()/2), 9)) # Remove y+9 (for testing)
+    # screen.blit(textPlayer1, LEFTMARGIN, PLAYERBOXGap) # Remove y+9 (for testing)fontBig.render(str(scores), True, BLACK)
     # #screen.blit(textPlayer2,((screenWidth-colScore-colMark/2 - textPlayer2.get_width()/2), 9))
     # screen.blit(text20,(round((screenWidth-text20.get_width())/2), rowTop))
     # screen.blit(text19,(round((screenWidth-text19.get_width())/2), rowTop+1*rowHeight))
@@ -131,14 +130,17 @@ def main():
 
     pygame.display.set_caption('Simple Elimination Tournament')
 
-    #DISPLAYSURF.fill(BGCOLOR)
-
+    fontBracket = pygame.font.SysFont("monaco", 30)
+    textPlayer1 = fontBracket.render("joueur 1", True, WHITE)
+    rectPlayer1 = textPlayer1.get_rect(center=(LEFTMARGIN + PLAYERBOXLength / 2, PLAYERBOXGap + PLAYERBOXHeight / 2))
 
     while True:  # main game loop
 
         #DISPLAYSURF.fill(BGCOLOR)  # drawing the window
 
         initBracket(DISPLAYSURF)
+
+        DISPLAYSURF.blit(textPlayer1, rectPlayer1)
 
         for event in pygame.event.get():  # event handling loop
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
