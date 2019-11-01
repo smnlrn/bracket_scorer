@@ -31,7 +31,7 @@ NAVYBLUE = (60, 60, 100)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+BLUE = (0, 0, 255, 5)
 YELLOW = (255, 255, 0)
 ORANGE = (255, 128, 0)
 PURPLE = (255, 0, 255)
@@ -44,8 +44,9 @@ HIGHLIGHTCOLOR = BLUE
 
 
 
+
 def initBracket(screen):
-    screen.fill(WHITE)
+    #screen.fill(GRAY)
     # Initialize the joysticks
     pygame.joystick.init()
     # column Grid
@@ -53,36 +54,54 @@ def initBracket(screen):
     # pygame.draw.line(screen, BLACK, (650, 100), (780,100), 3)
     # pygame.draw.line(screen, BLACK, (200, 100), (330,100), 3)
     # pygame.draw.line(screen, BLACK, (440, 100), (570,100), 3)
-    #playerBox = pygame.rect(20, 100, 110,100)
-    #Quarter Final - left
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap, PLAYERBOXLength,PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*3+PLAYERBOXHeight*2, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*5+PLAYERBOXHeight*3, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*7+PLAYERBOXHeight*5, PLAYERBOXLength, PLAYERBOXHeight))
+    # playerBox = pygame.rect(20, 100, 110,100)
 
-    #Quarter Final - right
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap*3+PLAYERBOXHeight*2, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap*5+PLAYERBOXHeight*3, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap*7+PLAYERBOXHeight*5, PLAYERBOXLength, PLAYERBOXHeight))
+    background_image = pygame.image.load("Grey-Rock-Structure.jpg").convert()
+    screen.blit(background_image, (0, 0))
+    # Quarter Final - left
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*3+PLAYERBOXHeight*2,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*5+PLAYERBOXHeight*3,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*7+PLAYERBOXHeight*5,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
 
-    #SemiFinals
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN+PLAYERBOXLength*2/3, PLAYERBOXGap*2+PLAYERBOXHeight, PLAYERBOXLength,PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN+PLAYERBOXLength*2/3, PLAYERBOXGap*6+PLAYERBOXHeight*4, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength*5/3, PLAYERBOXGap*2+PLAYERBOXHeight, PLAYERBOXLength, PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength*5/3, PLAYERBOXGap*6+PLAYERBOXHeight*4, PLAYERBOXLength, PLAYERBOXHeight))
+    # Quarter Final - right
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap*3+PLAYERBOXHeight*2,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap*5+PLAYERBOXHeight*3,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength, PLAYERBOXGap*7+PLAYERBOXHeight*5,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
 
-    #Finals
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN+PLAYERBOXLength*4/3, PLAYERBOXGap*4+PLAYERBOXHeight*2.5, PLAYERBOXLength,PLAYERBOXHeight))
-    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength*7/3, PLAYERBOXGap*4+PLAYERBOXHeight*2.5, PLAYERBOXLength, PLAYERBOXHeight))
+    # SemiFinals
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN+PLAYERBOXLength*2/3,
+                                              PLAYERBOXGap*2+PLAYERBOXHeight,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN+PLAYERBOXLength*2/3,
+                                              PLAYERBOXGap*6+PLAYERBOXHeight*4,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength*5/3,
+                                              PLAYERBOXGap*2+PLAYERBOXHeight,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength*5/3,
+                                              PLAYERBOXGap*6+PLAYERBOXHeight*4,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+
+    # Finals
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN+PLAYERBOXLength*4/3,
+                                              PLAYERBOXGap*4+PLAYERBOXHeight*2.5,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    pygame.draw.rect(screen, PLAYERBOXColor, (WINDOWWIDTH-RIGHTMARGIN-PLAYERBOXLength*7/3,
+                                              PLAYERBOXGap*4+PLAYERBOXHeight*2.5,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
 
     # pygame.draw.line(screen, BLACK, (colScore+colMark, 0), (colScore+colMark, screenHeight), 1)
     # pygame.draw.line(screen, BLACK, (colScore+colMark+colTarget, 0), (colScore+colMark+colTarget, screenHeight), 1)
-    # pygame.draw.line(screen, BLACK, (colScore+2*colMark+colTarget, 0), (colScore+2*colMark+colTarget, screenHeight), 1)
-    #     # Row Grid
-    # for r in range(1,10):
-    #     pygame.draw.line(screen, BLACK, (colScore, rowTop + r*rowHeight), (screenWidth-colScore, rowTop + r*rowHeight), 1)
-    #     # Draw double first line
     # pygame.draw.line(screen, (0,0,0,), (0, rowTop + 2), (screenWidth, rowTop + 2), 1)
     # pygame.draw.line(screen, (0,0,0,), (0, rowTop), (screenWidth, rowTop), 1)
     #
@@ -104,7 +123,6 @@ def initBracket(screen):
     #
 
 
-
 def main():
     global FPSCLOCK, DISPLAYSURF
     pygame.init()
@@ -113,13 +131,14 @@ def main():
 
     pygame.display.set_caption('Simple Elimination Tournament')
 
-    DISPLAYSURF.fill(BGCOLOR)
+    #DISPLAYSURF.fill(BGCOLOR)
+
 
     while True:  # main game loop
 
-        DISPLAYSURF.fill(BGCOLOR)  # drawing the window
-        initBracket(DISPLAYSURF)
+        #DISPLAYSURF.fill(BGCOLOR)  # drawing the window
 
+        initBracket(DISPLAYSURF)
 
         for event in pygame.event.get():  # event handling loop
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
