@@ -9,6 +9,7 @@ from pygame.locals import *
 FPS = 30  # frames per second, the general speed of the program
 WINDOWWIDTH = 800  # size of window's width in pixels
 WINDOWHEIGHT = 480  # size of windows' height in pixels
+
 #REVEALSPEED = 8  # speed boxes' sliding reveals and covers
 #BOXSIZE = 40  # size of box height & width in pixels
 #GAPSIZE = 10  # size of gap between boxes in pixels
@@ -19,6 +20,7 @@ WINDOWHEIGHT = 480  # size of windows' height in pixels
 #YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
 LEFTMARGIN = 20
 RIGHTMARGIN = 20
+TOPMARGIN = 10
 
 PLAYERBOXHeight = 30 # REFERENCE 7 letters font size 30
 PLAYERBOXLength = 150
@@ -42,6 +44,39 @@ LIGHTBGCOLOR = GRAY
 PLAYERBOXColor = BLUE
 HIGHLIGHTCOLOR = BLUE
 
+# Player box center coordinates
+G1P1cxy = (LEFTMARGIN + PLAYERBOXLength * 1 / 2, TOPMARGIN + PLAYERBOXHeight / 2)
+G1P2cxy = (LEFTMARGIN + PLAYERBOXLength * 1 / 2, TOPMARGIN + PLAYERBOXGap * 2 + PLAYERBOXHeight * 5 / 2)
+
+G2P1cxy = (LEFTMARGIN + PLAYERBOXLength * 1 / 2, TOPMARGIN + PLAYERBOXGap * 4 + PLAYERBOXHeight * 7 / 2)
+G2P2cxy = (LEFTMARGIN + PLAYERBOXLength * 1 / 2, TOPMARGIN + PLAYERBOXGap * 6 + PLAYERBOXHeight * 11 / 2)
+
+G3P1cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength / 2, TOPMARGIN + PLAYERBOXHeight / 2)
+G3P2cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength / 2, TOPMARGIN + PLAYERBOXGap * 2 + PLAYERBOXHeight * 5 / 2)
+
+G4P1cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength / 2, TOPMARGIN + PLAYERBOXGap * 4 + PLAYERBOXHeight * 7 / 2)
+G4P2cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength / 2, TOPMARGIN + PLAYERBOXGap * 6 + PLAYERBOXHeight * 11 / 2)
+
+G5P1cxy = (LEFTMARGIN + PLAYERBOXLength * 7 / 6, TOPMARGIN + PLAYERBOXGap * 1 + PLAYERBOXHeight * 3 / 2)
+G5P2cxy = (LEFTMARGIN + PLAYERBOXLength * 7 / 6, TOPMARGIN + PLAYERBOXGap * 5 + PLAYERBOXHeight * 9 / 2)
+
+G6P1cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength * 7 / 6, TOPMARGIN + PLAYERBOXGap * 1 + PLAYERBOXHeight * 3 / 2)
+G6P2cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength * 7 / 6, TOPMARGIN + PLAYERBOXGap * 5 + PLAYERBOXHeight * 9 / 2)
+
+G7P1cxy = (LEFTMARGIN + PLAYERBOXLength * 11 / 6, TOPMARGIN + PLAYERBOXGap * 3 + PLAYERBOXHeight * 3 / 1)
+G7P2cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength * 11 / 6, TOPMARGIN + PLAYERBOXGap * 3 + PLAYERBOXHeight * 3 / 1)
+
+
+def initPlayers(fieldSize):
+    # Get players name
+
+    # Random seed / no seed
+
+    # Put names on Display
+
+    # Return seeded players
+    return ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Bye",]
+
 
 
 def initBracket(screen):
@@ -57,9 +92,14 @@ def initBracket(screen):
 
     background_image = pygame.image.load("Grey-Rock-Structure.jpg").convert()
     screen.blit(background_image, (0, 0))
+    player_box = pygame.image.load("PlayerBox.png").convert()
+
+
     # Quarter Final - left
-    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap,
-                                              PLAYERBOXLength, PLAYERBOXHeight))
+    # pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap,
+    #                                           PLAYERBOXLength, PLAYERBOXHeight))
+    screen.blit(player_box, (LEFTMARGIN, PLAYERBOXGap))
+
     pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*3+PLAYERBOXHeight*2,
                                               PLAYERBOXLength, PLAYERBOXHeight))
     pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*5+PLAYERBOXHeight*3,
@@ -132,15 +172,54 @@ def main():
 
     fontBracket = pygame.font.SysFont("monaco", 30)
     textPlayer1 = fontBracket.render("joueur 1", True, WHITE)
-    rectPlayer1 = textPlayer1.get_rect(center=(LEFTMARGIN + PLAYERBOXLength / 2, PLAYERBOXGap + PLAYERBOXHeight / 2))
+    rectPlayer1 = textPlayer1.get_rect(center=G1P1cxy)
+    textPlayer2 = fontBracket.render("joueur 2", True, WHITE)
+    rectPlayer2 = textPlayer2.get_rect(center=G1P2cxy)
+    textPlayer3 = fontBracket.render("joueur 3", True, WHITE)
+    rectPlayer3 = textPlayer3.get_rect(center=G2P1cxy)
+    textPlayer4 = fontBracket.render("joueur 4", True, WHITE)
+    rectPlayer4 = textPlayer4.get_rect(center=G2P2cxy)
+    textPlayer5 = fontBracket.render("joueur 5", True, WHITE)
+    rectPlayer5 = textPlayer5.get_rect(center=G3P1cxy)
+    textPlayer6 = fontBracket.render("joueur 6", True, WHITE)
+    rectPlayer6 = textPlayer6.get_rect(center=G3P2cxy)
+    textPlayer7 = fontBracket.render("joueur 7", True, WHITE)
+    rectPlayer7 = textPlayer7.get_rect(center=G4P1cxy)
+    textPlayer8 = fontBracket.render("joueur 8", True, WHITE)
+    rectPlayer8 = textPlayer8.get_rect(center=G4P2cxy)
+
+    rectWinner1 = textPlayer1.get_rect(center=G5P1cxy)
+    rectWinner2 = textPlayer1.get_rect(center=G5P2cxy)
+    rectWinner3 = textPlayer1.get_rect(center=G6P1cxy)
+    rectWinner4 = textPlayer1.get_rect(center=G6P2cxy)
+    rectWinner5 = textPlayer1.get_rect(center=G7P1cxy)
+    rectWinner6 = textPlayer1.get_rect(center=G7P2cxy)
+
+    initBracket(DISPLAYSURF)
+    playerList = initPlayers(8)
+
+    DISPLAYSURF.blit(textPlayer1, rectPlayer1)
+    DISPLAYSURF.blit(textPlayer2, rectPlayer2)
+    DISPLAYSURF.blit(textPlayer3, rectPlayer3)
+    DISPLAYSURF.blit(textPlayer4, rectPlayer4)
+    DISPLAYSURF.blit(textPlayer5, rectPlayer5)
+    DISPLAYSURF.blit(textPlayer6, rectPlayer6)
+    DISPLAYSURF.blit(textPlayer7, rectPlayer7)
+    DISPLAYSURF.blit(textPlayer8, rectPlayer8)
+
+    DISPLAYSURF.blit(textPlayer1, rectWinner1)
+    DISPLAYSURF.blit(textPlayer3, rectWinner2)
+    DISPLAYSURF.blit(textPlayer5, rectWinner3)
+    DISPLAYSURF.blit(textPlayer7, rectWinner4)
+    DISPLAYSURF.blit(textPlayer1, rectWinner5)
+    DISPLAYSURF.blit(textPlayer7, rectWinner6)
+
+
 
     while True:  # main game loop
 
         #DISPLAYSURF.fill(BGCOLOR)  # drawing the window
 
-        initBracket(DISPLAYSURF)
-
-        DISPLAYSURF.blit(textPlayer1, rectPlayer1)
 
         for event in pygame.event.get():  # event handling loop
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
