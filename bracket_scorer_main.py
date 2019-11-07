@@ -22,7 +22,7 @@ LEFTMARGIN = 20
 RIGHTMARGIN = 20
 TOPMARGIN = 10
 
-PLAYERBOXHeight = 30 # REFERENCE 7 letters font size 30
+PLAYERBOXHeight = 30 #
 PLAYERBOXLength = 150
 PLAYERBOXGap = 10
 
@@ -66,6 +66,8 @@ G6P2cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength * 7 / 6, TOPMARGIN + PLAY
 G7P1cxy = (LEFTMARGIN + PLAYERBOXLength * 11 / 6, TOPMARGIN + PLAYERBOXGap * 3 + PLAYERBOXHeight * 3 / 1)
 G7P2cxy = (WINDOWWIDTH - RIGHTMARGIN - PLAYERBOXLength * 11 / 6, TOPMARGIN + PLAYERBOXGap * 3 + PLAYERBOXHeight * 3 / 1)
 
+# MGP1cxy =
+# MGP2cxy =
 
 def initPlayers(fieldSize):
     # Get players name
@@ -75,9 +77,11 @@ def initPlayers(fieldSize):
     # Put names on Display
 
     # Return seeded players
-    return ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Bye",]
-
-
+    plist = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Bye",]
+    print ("Original list : ",  plist)
+    random.shuffle(plist)  # shuffle method
+    print("List after first shuffle  : ", plist)
+    return plist
 
 def initBracket(screen):
     #screen.fill(GRAY)
@@ -92,13 +96,13 @@ def initBracket(screen):
 
     background_image = pygame.image.load("Grey-Rock-Structure.jpg").convert()
     screen.blit(background_image, (0, 0))
-    player_box = pygame.image.load("PlayerBox.png").convert()
+    # player_box = pygame.image.load("PlayerBox.png").convert()
 
 
     # Quarter Final - left
-    # pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap,
-    #                                           PLAYERBOXLength, PLAYERBOXHeight))
-    screen.blit(player_box, (LEFTMARGIN, PLAYERBOXGap))
+    pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap,
+                                              PLAYERBOXLength, PLAYERBOXHeight))
+    # screen.blit(player_box, (LEFTMARGIN, PLAYERBOXGap))
 
     pygame.draw.rect(screen, PLAYERBOXColor, (LEFTMARGIN, PLAYERBOXGap*3+PLAYERBOXHeight*2,
                                               PLAYERBOXLength, PLAYERBOXHeight))
@@ -170,33 +174,35 @@ def main():
 
     pygame.display.set_caption('Simple Elimination Tournament')
 
-    fontBracket = pygame.font.SysFont("monaco", 30)
-    textPlayer1 = fontBracket.render("joueur 1", True, WHITE)
+    playerList = initPlayers(8)
+
+
+    fontBracket = pygame.font.SysFont("Arcade Alternate", int(WINDOWWIDTH / 40))
+    textPlayer1 = fontBracket.render("Simon", True, WHITE)
     rectPlayer1 = textPlayer1.get_rect(center=G1P1cxy)
-    textPlayer2 = fontBracket.render("joueur 2", True, WHITE)
+    textPlayer2 = fontBracket.render("Joe", True, WHITE)
     rectPlayer2 = textPlayer2.get_rect(center=G1P2cxy)
-    textPlayer3 = fontBracket.render("joueur 3", True, WHITE)
+    textPlayer3 = fontBracket.render("Marc-Andre", True, WHITE)
     rectPlayer3 = textPlayer3.get_rect(center=G2P1cxy)
-    textPlayer4 = fontBracket.render("joueur 4", True, WHITE)
+    textPlayer4 = fontBracket.render(playerList[3], True, WHITE)
     rectPlayer4 = textPlayer4.get_rect(center=G2P2cxy)
-    textPlayer5 = fontBracket.render("joueur 5", True, WHITE)
+    textPlayer5 = fontBracket.render(playerList[4], True, WHITE)
     rectPlayer5 = textPlayer5.get_rect(center=G3P1cxy)
-    textPlayer6 = fontBracket.render("joueur 6", True, WHITE)
+    textPlayer6 = fontBracket.render(playerList[5], True, WHITE)
     rectPlayer6 = textPlayer6.get_rect(center=G3P2cxy)
-    textPlayer7 = fontBracket.render("joueur 7", True, WHITE)
+    textPlayer7 = fontBracket.render(playerList[6], True, WHITE)
     rectPlayer7 = textPlayer7.get_rect(center=G4P1cxy)
-    textPlayer8 = fontBracket.render("joueur 8", True, WHITE)
+    textPlayer8 = fontBracket.render(playerList[7], True, WHITE)
     rectPlayer8 = textPlayer8.get_rect(center=G4P2cxy)
 
     rectWinner1 = textPlayer1.get_rect(center=G5P1cxy)
-    rectWinner2 = textPlayer1.get_rect(center=G5P2cxy)
+    rectWinner2 = textPlayer3.get_rect(center=G5P2cxy)
     rectWinner3 = textPlayer1.get_rect(center=G6P1cxy)
     rectWinner4 = textPlayer1.get_rect(center=G6P2cxy)
     rectWinner5 = textPlayer1.get_rect(center=G7P1cxy)
     rectWinner6 = textPlayer1.get_rect(center=G7P2cxy)
 
     initBracket(DISPLAYSURF)
-    playerList = initPlayers(8)
 
     DISPLAYSURF.blit(textPlayer1, rectPlayer1)
     DISPLAYSURF.blit(textPlayer2, rectPlayer2)
@@ -213,7 +219,6 @@ def main():
     DISPLAYSURF.blit(textPlayer7, rectWinner4)
     DISPLAYSURF.blit(textPlayer1, rectWinner5)
     DISPLAYSURF.blit(textPlayer7, rectWinner6)
-
 
 
     while True:  # main game loop
