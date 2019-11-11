@@ -3,30 +3,14 @@
 # http://
 # Released under a tbd license
 
-import random, pygame, sys
-import pandas as pd
+import random
+import pygame
+import sys
 from pygame.locals import *
 
 FPS = 30  # frames per second, the general speed of the program
 WINDOWWIDTH = 800  # size of window's width in pixels
 WINDOWHEIGHT = 480  # size of windows' height in pixels
-
-#REVEALSPEED = 8  # speed boxes' sliding reveals and covers
-#BOXSIZE = 40  # size of box height & width in pixels
-#GAPSIZE = 10  # size of gap between boxes in pixels
-#BOARDWIDTH = 10  # number of columns of icons
-#BOARDHEIGHT = 7  # number of rows of icons
-#assert (BOARDWIDTH * BOARDHEIGHT) % 2 == 0, 'Board needs to have an even number of boxes for pairs of matches.'
-#XMARGIN = int((WINDOWWIDTH - (BOARDWIDTH * (BOXSIZE + GAPSIZE))) / 2)
-#YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
-LEFTMARGIN = 20
-RIGHTMARGIN = 20
-TOPMARGIN = 10
-
-PLAYERBOXHeight = 30 #
-PLAYERBOXLength = 150
-PLAYERBOXGap = 10
-
 
 #            R    G    B
 BLACK = (0, 0, 0)
@@ -41,71 +25,75 @@ ORANGE = (255, 128, 0)
 PURPLE = (255, 0, 255)
 CYAN = (0, 255, 255)
 
-BGCOLOR = NAVYBLUE
-LIGHTBGCOLOR = GRAY
-PLAYERBOXColor = BLUE
-HIGHLIGHTCOLOR = BLUE
-
 # Player box center coordinates (add 3px to vertical center for uppercase letters)
-G1P1cxy = (95, 23)
-G1P2cxy = (290, 23)
-G1S1cxy = (173, 23)
-G1S2cxy = (217, 23)
+G1P1CXY = (95, 23)
+G1P2CXY = (290, 23)
+G1S1CXY = (173, 23)
+G1S2CXY = (217, 23)
 
-G2P1cxy = (510, 23)
-G2P2cxy = (705, 23)
-G2S1cxy = (588, 23)
-G2S2cxy = (632, 23)
+G2P1CXY = (510, 23)
+G2P2CXY = (705, 23)
+G2S1CXY = (588, 23)
+G2S2CXY = (632, 23)
 
-G3P1cxy = (95, 463)
-G3P2cxy = (290, 463)
-G3S1cxy = (173, 463)
-G3S2cxy = (217, 463)
+G3P1CXY = (95, 463)
+G3P2CXY = (290, 463)
+G3S1CXY = (173, 463)
+G3S2CXY = (217, 463)
 
-G4P1cxy = (510, 463)
-G4P2cxy = (705, 463)
-G4S1cxy = (588, 463)
-G4S2cxy = (632, 463)
+G4P1CXY = (510, 463)
+G4P2CXY = (705, 463)
+G4S1CXY = (588, 463)
+G4S2CXY = (632, 463)
 
-G5P1cxy = (192, 88)
-G5P2cxy = (608, 88)
-G5S1cxy = (270, 88)
-G5S2cxy = (535, 88)
+G5P1CXY = (192, 88)
+G5P2CXY = (608, 88)
+G5S1CXY = (270, 88)
+G5S2CXY = (535, 88)
 
-G6P1cxy = (192, 397)
-G6P2cxy = (608, 397)
-G6S1cxy = (270, 397)
-G6S2cxy = (535, 397)
+G6P1CXY = (192, 397)
+G6P2CXY = (608, 397)
+G6S1CXY = (270, 397)
+G6S2CXY = (535, 397)
 
-G7P1cxy = (400, 123)
-G7P2cxy = (400, 363)
-G7S1cxy = (478, 123)
-G7S2cxy = (478, 363)
+G7P1CXY = (400, 123)
+G7P2CXY = (400, 363)
+G7S1CXY = (478, 123)
+G7S2CXY = (478, 363)
 
-MGP1cxy = (192, 185)
-MGP2cxy = (607, 185)
-MGS1cxy = (300, 275)
-MGS2cxy = (505, 275)
+MGP1CXY = (192, 190)
+MGP2CXY = (607, 190)
+MGS1CXY = (300, 275)
+MGS2CXY = (505, 275)
+MGSET1CXY = (340, 235)
+MGSET2CXY = (465, 235)
 
-def initPlayers(fieldSize):
+
+def init_players():
     # Get players name
 
     # Random seed / no seed
     rnd = 0
     # Put names on Display
 
-    # Return seeded players ["Player 1", "Player 8", "Player 4", "Player 5", "Player 3", "Player 6", "Player 2", "Player 7"]
+    # Return seeded players 1v8 vs 4v5 - 3v6 vs 2v7
     plist = ["PLAYER 1", "PLAYER 8", "PLAYER 4", "PLAYER 5", "PLAYER 3", "PLAYER 6", "PLAYER 2", "PLAYER 7"]
-    print ("Original list : ",  plist)
+    print("Original list : ",  plist)
     if rnd == 1:
         random.shuffle(plist)  # shuffle method
         print("List after first shuffle  : ", plist)
-    wlist = ["WINNER G1", "WINNER G2", "WINNER G3", "WINNER G4", "WINNER G5", "WINNER G6"]
+    wlist = [""] * 6
     plist.extend(wlist)
-    return plist
+    return plist, [3] * 14
 
-def initBracket(screen):
-    #screen.fill(GRAY)
+
+def init_sets():
+    # this will eventually use the Argonne Pool League System...
+    return 3
+
+
+def init_bracket(screen):
+    # screen.fill(GRAY)
     # Initialize the joysticks
     pygame.joystick.init()
 
@@ -122,109 +110,123 @@ def main():
 
     pygame.display.set_caption('Simple Elimination Tournament')
 
-    playerList = initPlayers(8)
+    player_list, sets_list = init_players()
+    winner_list = [False] * 14
 
+    font_main_name = pygame.font.SysFont("Prestij Demo", 48, bold=True)
+    font_mains_score = pygame.font.SysFont("Prestij Demo", 72, bold=True)
+    font_bracket = pygame.font.SysFont("Prestij Demo", 18, bold=True)
+    text_player1 = font_bracket.render(player_list[0], True, WHITE)
+    text_player2 = font_bracket.render(player_list[1], True, WHITE)
+    text_player3 = font_bracket.render(player_list[2], True, WHITE)
+    text_player4 = font_bracket.render(player_list[3], True, WHITE)
+    text_player5 = font_bracket.render(player_list[4], True, WHITE)
+    text_player6 = font_bracket.render(player_list[5], True, WHITE)
+    text_player7 = font_bracket.render(player_list[6], True, WHITE)
+    text_player8 = font_bracket.render(player_list[7], True, WHITE)
 
-    fontMainName = pygame.font.SysFont("Prestij Demo", 48, bold=True)
-    fontMainScore = pygame.font.SysFont("Prestij Demo", 72, bold=True)
-    fontBracket = pygame.font.SysFont("Prestij Demo", 18, bold=True)
-    textPlayer1 = fontBracket.render(playerList[0], True, WHITE)
-    textPlayer2 = fontBracket.render(playerList[1], True, WHITE)
-    textPlayer3 = fontBracket.render(playerList[2], True, WHITE)
-    textPlayer4 = fontBracket.render(playerList[3], True, WHITE)
-    textPlayer5 = fontBracket.render(playerList[4], True, WHITE)
-    textPlayer6 = fontBracket.render(playerList[5], True, WHITE)
-    textPlayer7 = fontBracket.render(playerList[6], True, WHITE)
-    textPlayer8 = fontBracket.render(playerList[7], True, WHITE)
+    # rect_winner1 = text_player1.get_rect(center=G5P1CXY)
+    # rect_winner2 = text_player3.get_rect(center=G5P2CXY)
+    # rect_winner3 = text_player1.get_rect(center=G6P1CXY)
+    # rect_winner4 = text_player1.get_rect(center=G6P2CXY)
+    # rect_winner5 = text_player1.get_rect(center=G7P1CXY)
+    # rect_winner6 = text_player1.get_rect(center=G7P2CXY)
+    #
+    # DISPLAYSURF.blit(text_player1, rect_winner1)
+    # DISPLAYSURF.blit(text_player3, rect_winner2)
+    # DISPLAYSURF.blit(text_player5, rect_winner3)
+    # DISPLAYSURF.blit(text_player7, rect_winner4)
+    # DISPLAYSURF.blit(text_player1, rect_winner5)
+    # DISPLAYSURF.blit(text_player7, rect_winner6)
 
-    rectWinner1 = textPlayer1.get_rect(center=G5P1cxy)
-    rectWinner2 = textPlayer3.get_rect(center=G5P2cxy)
-    rectWinner3 = textPlayer1.get_rect(center=G6P1cxy)
-    rectWinner4 = textPlayer1.get_rect(center=G6P2cxy)
-    rectWinner5 = textPlayer1.get_rect(center=G7P1cxy)
-    rectWinner6 = textPlayer1.get_rect(center=G7P2cxy)
-
-
-    DISPLAYSURF.blit(textPlayer1, rectWinner1)
-    DISPLAYSURF.blit(textPlayer3, rectWinner2)
-    DISPLAYSURF.blit(textPlayer5, rectWinner3)
-    DISPLAYSURF.blit(textPlayer7, rectWinner4)
-    DISPLAYSURF.blit(textPlayer1, rectWinner5)
-    DISPLAYSURF.blit(textPlayer7, rectWinner6)
-
+    correction = False
     currentgame = 1
     scores = [0] * 14
 
-
     while True:  # main game loop
 
-        initBracket(DISPLAYSURF)
+        init_bracket(DISPLAYSURF)
 
-        DISPLAYSURF.blit(textPlayer1, textPlayer1.get_rect(center=G1P1cxy))
-        DISPLAYSURF.blit(textPlayer2, textPlayer2.get_rect(center=G1P2cxy))
-        DISPLAYSURF.blit(textPlayer3, textPlayer3.get_rect(center=G2P1cxy))
-        DISPLAYSURF.blit(textPlayer4, textPlayer4.get_rect(center=G2P2cxy))
-        DISPLAYSURF.blit(textPlayer5, textPlayer5.get_rect(center=G3P1cxy))
-        DISPLAYSURF.blit(textPlayer6, textPlayer6.get_rect(center=G3P2cxy))
-        DISPLAYSURF.blit(textPlayer7, textPlayer7.get_rect(center=G4P1cxy))
-        DISPLAYSURF.blit(textPlayer8, textPlayer8.get_rect(center=G4P2cxy))
+        DISPLAYSURF.blit(text_player1, text_player1.get_rect(center=G1P1CXY))
+        DISPLAYSURF.blit(text_player2, text_player2.get_rect(center=G1P2CXY))
+        DISPLAYSURF.blit(text_player3, text_player3.get_rect(center=G2P1CXY))
+        DISPLAYSURF.blit(text_player4, text_player4.get_rect(center=G2P2CXY))
+        DISPLAYSURF.blit(text_player5, text_player5.get_rect(center=G3P1CXY))
+        DISPLAYSURF.blit(text_player6, text_player6.get_rect(center=G3P2CXY))
+        DISPLAYSURF.blit(text_player7, text_player7.get_rect(center=G4P1CXY))
+        DISPLAYSURF.blit(text_player8, text_player8.get_rect(center=G4P2CXY))
+        DISPLAYSURF.blit(font_bracket.render(player_list[8], True, WHITE),
+                         font_bracket.render(player_list[8], True, WHITE).get_rect(center=G5P1CXY))
+        DISPLAYSURF.blit(font_bracket.render(player_list[9], True, WHITE),
+                         font_bracket.render(player_list[9], True, WHITE).get_rect(center=G5P2CXY))
+        DISPLAYSURF.blit(font_bracket.render(player_list[10], True, WHITE),
+                         font_bracket.render(player_list[10], True, WHITE).get_rect(center=G6P1CXY))
+        DISPLAYSURF.blit(font_bracket.render(player_list[11], True, WHITE),
+                         font_bracket.render(player_list[11], True, WHITE).get_rect(center=G6P2CXY))
+        DISPLAYSURF.blit(font_bracket.render(player_list[12], True, WHITE),
+                         font_bracket.render(player_list[12], True, WHITE).get_rect(center=G7P1CXY))
+        DISPLAYSURF.blit(font_bracket.render(player_list[13], True, WHITE),
+                         font_bracket.render(player_list[13], True, WHITE).get_rect(center=G7P2CXY))
 
         pygame.draw.rect(DISPLAYSURF, RED, (360, 135 + 24 * currentgame, 85, 24), 1)
 
         # Current Game Display
-        DISPLAYSURF.blit(fontMainName.render(playerList[currentgame*2-2], True, WHITE),
-                         fontMainName.render(playerList[currentgame*2-2], True, WHITE).get_rect(center=MGP1cxy))
-        DISPLAYSURF.blit(fontMainName.render(playerList[currentgame*2-1], True, WHITE),
-                         fontMainName.render(playerList[currentgame*2-1], True, WHITE).get_rect(center=MGP2cxy))
-        DISPLAYSURF.blit(fontMainScore.render(str(scores[currentgame*2-2]), True, WHITE),
-                         fontMainScore.render(str(scores[currentgame*2-2]), True, WHITE).get_rect(center=MGS1cxy))
-        DISPLAYSURF.blit(fontMainScore.render(str(scores[currentgame*2-1]), True, WHITE),
-                         fontMainScore.render(str(scores[currentgame*2-1]), True, WHITE).get_rect(center=MGS2cxy))
+        DISPLAYSURF.blit(font_main_name.render(player_list[currentgame*2-2], True, WHITE),
+                         font_main_name.render(player_list[currentgame*2-2], True, WHITE).get_rect(center=MGP1CXY))
+        DISPLAYSURF.blit(font_main_name.render(player_list[currentgame*2-1], True, WHITE),
+                         font_main_name.render(player_list[currentgame*2-1], True, WHITE).get_rect(center=MGP2CXY))
+        if correction:
+            DISPLAYSURF.blit(font_mains_score.render(str(scores[currentgame*2-2]), True, RED),
+                             font_mains_score.render(str(scores[currentgame*2-2]), True, RED).get_rect(center=MGS1CXY))
+            DISPLAYSURF.blit(font_mains_score.render(str(scores[currentgame*2-1]), True, RED),
+                             font_mains_score.render(str(scores[currentgame*2-1]), True, RED).get_rect(center=MGS2CXY))
+        else:
+            DISPLAYSURF.blit(font_mains_score.render(str(scores[currentgame*2-2]), True, WHITE),
+                             font_mains_score.render(str(scores[currentgame*2-2]), True, WHITE).get_rect(center=MGS1CXY))
+            DISPLAYSURF.blit(font_mains_score.render(str(scores[currentgame*2-1]), True, WHITE),
+                             font_mains_score.render(str(scores[currentgame*2-1]), True, WHITE).get_rect(center=MGS2CXY))
+
+        DISPLAYSURF.blit(font_bracket.render(str(sets_list[currentgame*2-2]), True, RED),
+                         font_bracket.render(str(sets_list[currentgame*2-2]), True, RED).get_rect(center=MGSET1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(sets_list[currentgame*2-1]), True, RED),
+                         font_bracket.render(str(sets_list[currentgame*2-1]), True, RED).get_rect(center=MGSET2CXY))
 
         # Tournament scores
-        DISPLAYSURF.blit(fontBracket.render(str(scores[0]), True, RED),
-                         fontBracket.render(str(scores[0]), True, RED).get_rect(center=G1S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[1]), True, RED),
-                         fontBracket.render(str(scores[1]), True, RED).get_rect(center=G1S2cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[2]), True, RED),
-                         fontBracket.render(str(scores[2]), True, RED).get_rect(center=G2S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[3]), True, RED),
-                         fontBracket.render(str(scores[3]), True, RED).get_rect(center=G2S2cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[4]), True, RED),
-                         fontBracket.render(str(scores[4]), True, RED).get_rect(center=G3S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[5]), True, RED),
-                         fontBracket.render(str(scores[5]), True, RED).get_rect(center=G3S2cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[6]), True, RED),
-                         fontBracket.render(str(scores[6]), True, RED).get_rect(center=G4S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[7]), True, RED),
-                         fontBracket.render(str(scores[7]), True, RED).get_rect(center=G4S2cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[8]), True, RED),
-                         fontBracket.render(str(scores[8]), True, RED).get_rect(center=G5S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[9]), True, RED),
-                         fontBracket.render(str(scores[9]), True, RED).get_rect(center=G5S2cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[10]), True, RED),
-                         fontBracket.render(str(scores[10]), True, RED).get_rect(center=G6S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[11]), True, RED),
-                         fontBracket.render(str(scores[11]), True, RED).get_rect(center=G6S2cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[12]), True, RED),
-                         fontBracket.render(str(scores[12]), True, RED).get_rect(center=G7S1cxy))
-        DISPLAYSURF.blit(fontBracket.render(str(scores[13]), True, RED),
-                         fontBracket.render(str(scores[13]), True, RED).get_rect(center=G7S2cxy))
-
+        DISPLAYSURF.blit(font_bracket.render(str(scores[0]), True, RED),
+                         font_bracket.render(str(scores[0]), True, RED).get_rect(center=G1S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[1]), True, RED),
+                         font_bracket.render(str(scores[1]), True, RED).get_rect(center=G1S2CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[2]), True, RED),
+                         font_bracket.render(str(scores[2]), True, RED).get_rect(center=G2S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[3]), True, RED),
+                         font_bracket.render(str(scores[3]), True, RED).get_rect(center=G2S2CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[4]), True, RED),
+                         font_bracket.render(str(scores[4]), True, RED).get_rect(center=G3S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[5]), True, RED),
+                         font_bracket.render(str(scores[5]), True, RED).get_rect(center=G3S2CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[6]), True, RED),
+                         font_bracket.render(str(scores[6]), True, RED).get_rect(center=G4S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[7]), True, RED),
+                         font_bracket.render(str(scores[7]), True, RED).get_rect(center=G4S2CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[8]), True, RED),
+                         font_bracket.render(str(scores[8]), True, RED).get_rect(center=G5S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[9]), True, RED),
+                         font_bracket.render(str(scores[9]), True, RED).get_rect(center=G5S2CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[10]), True, RED),
+                         font_bracket.render(str(scores[10]), True, RED).get_rect(center=G6S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[11]), True, RED),
+                         font_bracket.render(str(scores[11]), True, RED).get_rect(center=G6S2CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[12]), True, RED),
+                         font_bracket.render(str(scores[12]), True, RED).get_rect(center=G7S1CXY))
+        DISPLAYSURF.blit(font_bracket.render(str(scores[13]), True, RED),
+                         font_bracket.render(str(scores[13]), True, RED).get_rect(center=G7S2CXY))
 
         for event in pygame.event.get():  # event handling loop
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            # elif event.type == MOUSEMOTION:
-            #     # mousex, mousey = event.pos
-            # elif event.type == MOUSEBUTTONUP:
-            #     # mousex, mousey = event.pos
-            #     # mouseClicked = True
-
 
             if event.type == KEYUP and event.key == K_DOWN:
-                # pygame.draw.rect(DISPLAYSURF, BLACK, (360, 135 + 24 * currentgame, 85, 24), 1)
                 if currentgame == 7:
                     currentgame = 1
                 else:
@@ -232,63 +234,49 @@ def main():
                 pygame.draw.rect(DISPLAYSURF, RED, (360, 135 + 24*currentgame, 85, 24), 1)
 
             if event.type == KEYUP and event.key == K_UP:
-                # pygame.draw.rect(DISPLAYSURF, BLACK, (360, 135 + 24 * currentgame, 85, 24), 1)
                 if currentgame == 1:
                     currentgame = 7
                 else:
                     currentgame -= 1
                 pygame.draw.rect(DISPLAYSURF, BLUE, (360, 135 + 24*currentgame, 85, 24), 1)
 
+            if event.type == KEYUP and event.key == K_x:
+                if correction:
+                    correction = False
+                else:
+                    correction = True
+
             if event.type == KEYUP and event.key == K_LEFT:
-                scores[currentgame*2-2] += 1
+                if correction:
+                    scores[currentgame*2-2] -= 1
+                    correction = False
+                else:
+                    scores[currentgame * 2 - 2] += 1
 
             if event.type == KEYUP and event.key == K_RIGHT:
-                scores[currentgame*2-1] += 1
+                if correction:
+                    scores[currentgame*2-1] -= 1
+                    correction = False
+                else:
+                    scores[currentgame*2-1] += 1
 
+            # CHECK WINNER TODO: Put inside the left-right keyup if statement and trap final winner index
+            if sets_list[currentgame*2-2] == scores[currentgame*2-2]:
+                winner_list[currentgame*2-2] = True
+                winner_list[currentgame*2-1] = False
+                print(player_list[currentgame*2-2], ' wins')
+                player_list[currentgame+7] = player_list[currentgame*2-2]
 
-
-
-        # boxx, boxy = getBoxAtPixel(mousex, mousey)
-        # if boxx != None and boxy != None:
-        #     # The mouse is currently over a box.
-        #     if not revealedBoxes[boxx][boxy]:
-        #         drawHighlightBox(boxx, boxy)
-        #     if not revealedBoxes[boxx][boxy] and mouseClicked:
-        #         revealBoxesAnimation(mainBoard, [(boxx, boxy)])
-        #         revealedBoxes[boxx][boxy] = True  # set the box as "revealed"
-        #         if firstSelection == None:  # the current box was the first box clicked
-        #             firstSelection = (boxx, boxy)
-        #         else:  # the current box was the second box clicked
-        #             # Check if there is a match between the two icons.
-        #             icon1shape, icon1color = getShapeAndColor(mainBoard, firstSelection[0], firstSelection[1])
-        #             icon2shape, icon2color = getShapeAndColor(mainBoard, boxx, boxy)
-        #
-        #             if icon1shape != icon2shape or icon1color != icon2color:
-        #                 # Icons don't match. Re-cover up both selections.
-        #                 pygame.time.wait(1000)  # 1000 milliseconds = 1 sec
-        #                 coverBoxesAnimation(mainBoard, [(firstSelection[0], firstSelection[1]), (boxx, boxy)])
-        #                 revealedBoxes[firstSelection[0]][firstSelection[1]] = False
-        #                 revealedBoxes[boxx][boxy] = False
-        #             elif hasWon(revealedBoxes):  # check if all pairs found
-        #                 gameWonAnimation(mainBoard)
-        #                 pygame.time.wait(2000)
-        #
-        #                 # Reset the board
-        #                 mainBoard = getRandomizedBoard()
-        #                 revealedBoxes = generateRevealedBoxesData(False)
-        #
-        #                 # Show the fully unrevealed board for a second.
-        #                 drawBoard(mainBoard, revealedBoxes)
-        #                 pygame.display.update()
-        #                 pygame.time.wait(1000)
-        #
-        #                 # Replay the start game animation.
-        #                 startGameAnimation(mainBoard)
-        #             firstSelection = None  # reset firstSelection variable
+            elif sets_list[currentgame*2-1] == scores[currentgame*2-1]:
+                winner_list[currentgame*2-2] = False
+                winner_list[currentgame*2-1] = True
+                print(player_list[currentgame*2-1], ' wins')
+                player_list[currentgame+7] = player_list[currentgame*2-1]
 
         # Redraw the screen and wait a clock tick.
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
 
 if __name__ == '__main__':
     main()
