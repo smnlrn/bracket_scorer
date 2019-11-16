@@ -12,6 +12,8 @@ FPS = 30  # frames per second, the general speed of the program
 WINDOWWIDTH = 800  # size of window's width in pixels
 WINDOWHEIGHT = 480  # size of windows' height in pixels
 
+JVT = .9 #Joystick value treshold
+
 #            R    G    B
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
@@ -90,8 +92,8 @@ def init_players():
                 # quit()
 
         DISPLAYSURF.fill(WHITE)
-        largeText = pygame.font.Font('freesansbold.ttf', 115)
-        TextSurf, TextRect = text_objects("A bit Racey", largeText)
+        largeText = pygame.font.Font('freesansbold.ttf', 48)
+        TextSurf, TextRect = text_objects("Tournament Scoring Machine", largeText)
         TextRect.center = ((400), (240))
         DISPLAYSURF.blit(TextSurf, TextRect)
 
@@ -127,7 +129,7 @@ def init_bracket(screen):
     # Initialize the joysticks
     pygame.joystick.init()
 
-    background_image = pygame.image.load("TournamentScorerBG.jpg").convert()
+    background_image = pygame.image.load("TournamentScorerBG.png").convert()
     screen.blit(background_image, (0, 0))
     # player_box = pygame.image.load("PlayerBox.png").convert()
 
@@ -135,6 +137,9 @@ def init_bracket(screen):
 def main():
     global FPSCLOCK, DISPLAYSURF
     pygame.init()
+    pygame.joystick.init()
+    joystick = pygame.joystick.Joystick(0)
+    joystick.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 
@@ -143,10 +148,10 @@ def main():
     player_list, sets_list = init_players()
     print(player_list)
     winner_list = [False] * 14
-
-    font_main_name = pygame.font.SysFont("Prestij Demo", 48, bold=True)
-    font_main_score = pygame.font.SysFont("Prestij Demo", 72, bold=True)
-    font_bracket = pygame.font.SysFont("Prestij Demo", 18, bold=True)
+    # sysFont did not work on my MBP for some reason...
+    font_main_name = pygame.font.Font('freesansbold.ttf', 48)
+    font_main_score = pygame.font.Font("freesansbold.ttf", 72)
+    font_bracket = pygame.font.Font("freesansbold.ttf", 18)
 
     correction = False
     currentgame = 1
@@ -207,36 +212,44 @@ def main():
         #   player_list: for seeded players and winners
         #   scores: score list as they are entered
         for event in pygame.event.get():  # event handling loop
-            if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+            if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE) or \
+                    (event.type == pygame.JOYBUTTONDOWN and joystick.get_button(8)):  # START
                 pygame.quit()
                 sys.exit()
 
-            if event.type == KEYUP and event.key == K_DOWN:
+            if (event.type == KEYUP and event.key == K_DOWN) or \
+                    (event.type == pygame.JOYAXISMOTION and joystick.get_axis(1) > JVT):  # DOWN
                 if currentgame == 7:
                     currentgame = 1
                 else:
                     currentgame += 1
 
-            if event.type == KEYUP and event.key == K_UP:
+            if (event.type == KEYUP and event.key == K_UP) or \
+                    (event.type == pygame.JOYAXISMOTION and joystick.get_axis(1) < -JVT):  # UP
                 if currentgame == 1:
                     currentgame = 7
                 else:
                     currentgame -= 1
 
-            if event.type == KEYUP and event.key == K_x:
+            if (event.type == KEYUP and event.key == K_x) or \
+                    (event.type == pygame.JOYBUTTONDOWN and joystick.get_button(9)):  # SELECT
                 if correction:
                     correction = False
                 else:
                     correction = True
-            if event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT):
-                if event.type == KEYUP and event.key == K_LEFT:
+            if (event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT)) or \
+                    (event.type == pygame.JOYAXISMOTION and
+                        (joystick.get_axis(0) < -JVT or joystick.get_axis(0) > JVT)):  # LEFT & RIGHT
+                if (event.type == KEYUP and event.key == K_LEFT) or \
+                        (event.type == pygame.JOYAXISMOTION and joystick.get_axis(0) < -JVT):  # LEFT
                     if correction:
                         scores[currentgame*2-2] -= 1
                         correction = False
                     else:
                         scores[currentgame * 2 - 2] += 1
 
-                if event.type == KEYUP and event.key == K_RIGHT:
+                if (event.type == KEYUP and event.key == K_RIGHT) or \
+                        (event.type == pygame.JOYAXISMOTION and joystick.get_axis(0) > JVT):  # RIGHT
                     if correction:
                         scores[currentgame*2-1] -= 1
                         correction = False
@@ -257,6 +270,11 @@ def main():
                     print(player_list[currentgame*2-1], ' wins')
                     if currentgame != 7:
                         player_list[currentgame+7] = player_list[currentgame*2-1]
+                else:
+                    winner_list[currentgame * 2 - 2] = False
+                    winner_list[currentgame * 2 - 1] = False
+                    if currentgame != 7:
+                        player_list[currentgame+7] = ""
 
         # Redraw the screen and wait a clock tick.
         pygame.display.update()
