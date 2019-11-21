@@ -104,46 +104,79 @@ def text_blit(text, font, clr, center):
 
 
 def select_player(event, index):
-    if event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
-        index += 1
-        if index > 7:
-            index = 0
-    if event.type == pygame.KEYUP and event.key == pygame.K_UP:
-        index -= 1
-        if index < 0:
-            index = 7
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_DOWN:
+            index += 1
+            if index > 7:
+                index = 0
+        if event.key == pygame.K_UP:
+            index -= 1
+            if index < 0:
+                index = 7
+    # axis tested to be 1
+    if event.type == pygame.JOYAXISMOTION:
+        if event.axis == 1 and event.value > JVT:
+            index += 1
+            if index > 7:
+                index = 0
+        if event.axis == 1 and event.value < -JVT:
+            index -= 1
+            if index < 0:
+                index = 7
     return index
 
 
 def letterpicker(event, rectposx, rectposy, x, y):
-    if event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
-        rectposx += rectposxstep
-        x += 1
-        if rectposx > rectposxmax:
-            rectposx = rectposxmin
-            x = 0
-        # pygame.draw.rect(screen, ORANGE, [rectposx, rectposy, 20, 20], 2)
-    if event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
-        rectposx -= rectposxstep
-        x -= 1
-        if rectposx < rectposxmin:
-            rectposx = rectposxmax
-            x = xmax
-        # pygame.draw.rect(screen, ORANGE, [rectposx, rectposy, 20, 20], 2)
-    if event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
-        rectposy += rectposystep
-        y += 1
-        if rectposy > rectposymax:
-            rectposy = rectposymin
-            y = 0
-        # pygame.draw.rect(screen, ORANGE, [rectposx, rectposy, 20, 20], 2)
-    if event.type == pygame.KEYUP and event.key == pygame.K_UP:
-        rectposy -= rectposystep
-        y -= 1
-        if rectposy < rectposymin:
-            rectposy = rectposymax
-            y = ymax
-        # pygame.draw.rect(screen, ORANGE, [rectposx, rectposy, 20, 20], 2)
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_RIGHT:
+            rectposx += rectposxstep
+            x += 1
+            if rectposx > rectposxmax:
+                rectposx = rectposxmin
+                x = 0
+        if event.key == pygame.K_LEFT:
+            rectposx -= rectposxstep
+            x -= 1
+            if rectposx < rectposxmin:
+                rectposx = rectposxmax
+                x = xmax
+        if event.key == pygame.K_DOWN:
+            rectposy += rectposystep
+            y += 1
+            if rectposy > rectposymax:
+                rectposy = rectposymin
+                y = 0
+        if event.key == pygame.K_UP:
+            rectposy -= rectposystep
+            y -= 1
+            if rectposy < rectposymin:
+                rectposy = rectposymax
+                y = ymax
+    if event.type == pygame.JOYAXISMOTION:
+        if event.axis == 0 and event.value > JVT:  # RIGHT
+            rectposx += rectposxstep
+            x += 1
+            if rectposx > rectposxmax:
+                rectposx = rectposxmin
+                x = 0
+        if event.axis == 0 and event.value < -JVT:  # LEFT
+            rectposx -= rectposxstep
+            x -= 1
+            if rectposx < rectposxmin:
+                rectposx = rectposxmax
+                x = xmax
+        if event.axis == 1 and event.value > JVT:  # DOWN
+            rectposy += rectposystep
+            y += 1
+            if rectposy > rectposymax:
+                rectposy = rectposymin
+                y = 0
+        if event.axis == 1 and event.value < -JVT:  # UP
+            rectposy -= rectposystep
+            y -= 1
+            if rectposy < rectposymin:
+                rectposy = rectposymax
+                y = ymax
     return rectposx, rectposy, x, y
 
 
@@ -166,11 +199,10 @@ def init_players():
     # pygame.draw.rect(DISPLAYSURF, ORANGE, [rectposx, rectposy, squareSide, squareSide], 2)
     initials = [" "] * 8
     ii = 0
-
+    background_image_player = pygame.image.load("TournamentScorerBGPlayer.png").convert()
     init = True
     player_picker = True
     while init:
-        background_image_player = pygame.image.load("TournamentScorerBGPlayer.png").convert()
         DISPLAYSURF.blit(background_image_player, (0, 0))
         if player_picker:
             pygame.draw.rect(DISPLAYSURF, RED, [player_x, player_y + player_vgap * player_index,
@@ -195,38 +227,69 @@ def init_players():
         # DISPLAYSURF.blit(txt_surf, txt_rect)
 
         for event in pygame.event.get():
-            # print(event)
+            print(event)
             if event.type == pygame.QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 init = False
             if player_picker:
-                if event.type == pygame.KEYUP and event.key in [pygame.K_UP, pygame.K_DOWN]:
-                    player_index = select_player(event, player_index)
-                if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                    player_picker = False
-                    initials = list(Players[player_index])
-                    ii = 0
+                if event.type == pygame.KEYUP:
+                    if event.key in [pygame.K_UP, pygame.K_DOWN]:
+                        player_index = select_player(event, player_index)
+                    if event.key == pygame.K_SPACE:
+                        player_picker = False
+                        initials = list(Players[player_index])
+                        ii = 0
+                if event.type == pygame.JOYBUTTONDOWN:
+                    if event.button == 8:
+                        player_picker = False
+                        initials = list(Players[player_index])
+                        ii = 0
+                if event.type == pygame.JOYAXISMOTION:
+                    if event.axis == 1:
+                        player_index = select_player(event, player_index)
+
             else:
-                if event.type == pygame.KEYUP and \
-                        event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
+                if event.type == pygame.KEYUP:
+                    if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
+                        rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
+                        print(event)
+                        print(rectposx, rectposy, x, y)
+                    if event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
+                        print("Initials: ", "".join(initials))
+                        Players[player_index] = "".join(initials)
+                        print("Player:", Players[player_index])
+                        player_picker = True
+                        if player_index < 7:
+                            player_index += 1
+                        else:
+                            player_index = 0
+                    if event.key == pygame.K_SPACE:
+                        # print(letters[y][x])
+                        initials[ii] = letters[y][x]
+                        Players[player_index] = "".join(initials)
+                        ii += 1
+                        if ii > 7:
+                            ii = 0
+                if event.type == pygame.JOYAXISMOTION:
                     rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
                     print(event)
                     print(rectposx, rectposy, x, y)
-                if event.type == pygame.KEYUP and event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
-                    print("Initials: ", "".join(initials))
-                    Players[player_index] = "".join(initials)
-                    print("Player:", Players[player_index])
-                    player_picker = True
-                    if player_index < 7:
-                        player_index += 1
-                    else:
-                        player_index = 0
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    # print(letters[y][x])
-                    initials[ii] = letters[y][x]
-                    Players[player_index] = "".join(initials)
-                    ii += 1
-                    if ii > 7:
-                        ii = 0
+                if event.type == pygame.JOYBUTTONDOWN:
+                    if event.button == 8:
+                        # print(letters[y][x])
+                        initials[ii] = letters[y][x]
+                        Players[player_index] = "".join(initials)
+                        ii += 1
+                        if ii > 7:
+                            ii = 0
+                    if event.button == 9:
+                        print("Initials: ", "".join(initials))
+                        Players[player_index] = "".join(initials)
+                        print("Player:", Players[player_index])
+                        player_picker = True
+                        if player_index < 7:
+                            player_index += 1
+                        else:
+                            player_index = 0
 
         pygame.display.update()
 
@@ -250,16 +313,6 @@ def init_players():
     return plist, setlist
 
 
-def init_sets():
-    # this will eventually use the Argonne Pool League System...
-    return 3
-
-
-def init_bracket(screen):
-    background_image = pygame.image.load("TournamentScorerBG.png").convert()
-    screen.blit(background_image, (0, 0))
-
-
 def main():
     global FPSCLOCK, DISPLAYSURF
     pygame.init()
@@ -275,17 +328,19 @@ def main():
     print(player_list)
     winner_list = [False] * 14
     # sysFont did not work on my MBP for some reason...
-    font_main_name = pygame.font.Font('freesansbold.ttf', 48)
-    font_main_score = pygame.font.Font("freesansbold.ttf", 72)
-    font_bracket = pygame.font.Font("freesansbold.ttf", 18)
+    # font must be present in the folder
+    font_main_name = pygame.font.Font('OCRAStd.otf', 48)
+    font_main_score = pygame.font.Font("OCRAStd.otf", 72)
+    font_bracket = pygame.font.Font("OCRAStd.otf", 18)
 
     correction = False
     currentgame = 1
     scores = [0] * 14
+    background_image = pygame.image.load("TournamentScorerBG.png").convert()
 
     while True:  # main game loop
 
-        init_bracket(DISPLAYSURF)
+        DISPLAYSURF.blit(background_image, (0, 0))
 
         # DISPLAY ALL TOURNAMENT ELEMENTS  (the * splits the returned list into arguments)
         # PLAYER NAMES - BRACKETS
@@ -338,6 +393,9 @@ def main():
         #   player_list: for seeded players and winners
         #   scores: score list as they are entered
         for event in pygame.event.get():  # event handling loop
+            print(event)
+            print(pygame.JOYBUTTONDOWN)
+            print(event.button)
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE) or \
                     (event.type == pygame.JOYBUTTONDOWN and joystick.get_button(9)):  # START
                 pygame.quit()
