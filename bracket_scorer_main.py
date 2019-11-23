@@ -92,6 +92,11 @@ MGS2CXY = (505, 275)
 MGSET1CXY = (340, 235)
 MGSET2CXY = (465, 235)
 
+# ARGONNE POOL LEAGUE HANDICAP SYSTEM CONSTANTS
+PLAYER_STATUS_EST = "EST."
+PLAYER_STATUS_NEW = "NEW"
+
+
 
 def text_objects(text, font):
     textsurface = font.render(text, True, BLACK)
@@ -101,6 +106,29 @@ def text_objects(text, font):
 def text_blit(text, font, clr, center):
     textrender = font.render(text, True, clr)
     return textrender, textrender.get_rect(center=center)
+
+
+def select_section(event, index):
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_RIGHT:
+            index += 1
+            if index > 3:
+                index = 1
+        if event.key == pygame.K_LEFT:
+            index -= 1
+            if index < 1:
+                index = 3
+    # axis tested to be 1
+    if event.type == pygame.JOYAXISMOTION:
+        if event.axis == 0 and event.value > JVT:  # RIGHT
+            index += 1
+            if index > 3:
+                index = 1
+        if event.axis == 0 and event.value < -JVT:  # LEFT
+            index -= 1
+            if index < 1:
+                index = 3
+    return index
 
 
 def select_player(event, index):
@@ -124,6 +152,38 @@ def select_player(event, index):
             if index < 0:
                 index = 7
     return index
+
+
+def select_mode(event, index):
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_RIGHT:
+            index += 1
+            if index > 2:
+                index = 0
+        if event.key == pygame.K_LEFT:
+            index -= 1
+            if index < 0:
+                index = 2
+    # axis tested to be 1
+    if event.type == pygame.JOYAXISMOTION:
+        if event.axis == 0 and event.value > JVT:
+            index += 1
+            if index > 2:
+                index = 0
+        if event.axis == 0 and event.value < -JVT:
+            index -= 1
+            if index < 0:
+                index = 2
+    return index
+
+
+def update_games(event, index, value):
+    if event.type == pygame.JOYAXISMOTION:
+        if sets:  # SETS
+            if modeinx == 0:  # Quarter finals
+                if event.axis == 0 and event.value > JVT:
+                    value += 1
+    return value
 
 
 def letterpicker(event, rectposx, rectposy, x, y):
@@ -182,6 +242,14 @@ def letterpicker(event, rectposx, rectposy, x, y):
 
 def init_players():
     fontplayer = pygame.font.Font("OCRAStd.otf", 40)
+    fontmode = pygame.font.Font("OCRAStd.otf", 10)
+    fontinstructions = pygame.font.Font("OCRAStd.otf", 12)
+    section_player = 1
+    section_handicap = 2
+    section_start = 3
+    mode_toggle = 1  # 1:Tgggle, 2:Select, 3:Set Value
+    mode_sets = True
+    setlist = [3] * 8 + [5] * 4 + [7] * 2
     rectposx = rectposxmin
     rectposy = rectposymin
     player_index = 0
@@ -193,27 +261,54 @@ def init_players():
     name_y = 45
     name_gap = 29
     name_square = 39
+    mode_index = 0
+    mode_x = 330
+    mode_y = 50
+    mode_vgap = 50
+    mode_hgap = 42
+    mode_square = 35
     x = 0
     # xmax = len(letters[0]) - 1
     y = 0
     # pygame.draw.rect(DISPLAYSURF, ORANGE, [rectposx, rectposy, squareSide, squareSide], 2)
+    player_status = ["EST."] * 4 + ["NEW"] * 4 + [""] * 6
+    player_games = [17] * 8 + [0] * 6
+    player_handicap = [30] * 8 + [0] * 6
     initials = [" "] * 8
     ii = 0
     background_image_player = pygame.image.load("TournamentScorerBGPlayer.png").convert()
     init = True
-    player_picker = True
+    section_index = section_player
     while init:
         DISPLAYSURF.blit(background_image_player, (0, 0))
-        if player_picker:
+        if section_index == section_player:
             pygame.draw.rect(DISPLAYSURF, RED, [player_x, player_y + player_vgap * player_index,
                                                 player_square, player_square], 2)
+            pygame.draw.rect(DISPLAYSURF, RED, [80, 5, 165, 35], 2)
+            DISPLAYSURF.blit(*text_blit("Select to enter name; L/R to change section",
+                                        fontinstructions, WHITE, (200, 460)))
+        elif section_index == section_handicap:
+            pygame.draw.rect(DISPLAYSURF, RED, [304, 8, 175, 20], 2)
+            if mode_toggle == 1:
+                pygame.draw.rect(DISPLAYSURF, RED, [304, 30, 175, 17], 2)
+            elif mode_toggle == 2:
+                pygame.draw.rect(DISPLAYSURF, RED, [mode_x + mode_hgap * mode_index, mode_y + mode_vgap * player_index,
+                                                    mode_square, mode_square], 2)
+            else:
+                pygame.draw.rect(DISPLAYSURF, RED, [mode_x + mode_hgap * mode_index, mode_y + mode_vgap * player_index,
+                                                    mode_square, mode_square], 2)
+                pygame.draw.rect(DISPLAYSURF, RED, [mode_x + mode_hgap * mode_index - 2 ,
+                                                    mode_y + mode_vgap * player_index - 2,
+                                                    mode_square + 5, mode_square + 5], 1)
+            DISPLAYSURF.blit(*text_blit("Start to toggle mode/enter; Select to activate cell",
+                                        fontinstructions, WHITE, (200, 460)))
         else:
             pygame.draw.rect(DISPLAYSURF, RED, [rectposx, rectposy, 50, 50], 2)
             pygame.draw.rect(DISPLAYSURF, RED, [name_x + ii*name_gap, name_y + player_vgap * player_index,
                                                 name_square, name_square], 2)
-
-        # drawletters(DISPLAYSURF, letters)
-        # drawnumbers(DISPLAYSURF, numbers)
+            DISPLAYSURF.blit(*text_blit("Select to enter letter; Start to return",
+                                        fontinstructions, WHITE, (200, 460)))
+        # PLAYER NAMES
         DISPLAYSURF.blit(fontplayer.render(Players[0], True, ORANGE), (45, 50))
         DISPLAYSURF.blit(fontplayer.render(Players[1], True, ORANGE), (45, 100))
         DISPLAYSURF.blit(fontplayer.render(Players[2], True, ORANGE), (45, 150))
@@ -222,42 +317,224 @@ def init_players():
         DISPLAYSURF.blit(fontplayer.render(Players[5], True, ORANGE), (45, 300))
         DISPLAYSURF.blit(fontplayer.render(Players[6], True, ORANGE), (45, 350))
         DISPLAYSURF.blit(fontplayer.render(Players[7], True, ORANGE), (45, 400))
-        # DISPLAYSURF.blit(fontbig.render(initials[1], True, ORANGE), (230, 300))
-        # DISPLAYSURF.blit(fontbig.render(initials[2], True, ORANGE), (260, 300))
-        # DISPLAYSURF.blit(txt_surf, txt_rect)
+        if mode_sets:
+            DISPLAYSURF.blit(*text_blit("Quarter-Semi-Final", fontinstructions, WHITE, (390, 40)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, WHITE, (350, 70)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 120)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 170)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 220)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 270)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 320)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 370)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[0]), fontplayer, GRAY, (350, 420)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, WHITE, (390, 70)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 120)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 170)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 220)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 270)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 320)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 370)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[8]), fontplayer, GRAY, (390, 420)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, WHITE, (430, 70)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 120)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 170)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 220)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 270)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 320)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 370)))
+            DISPLAYSURF.blit(*text_blit(str(setlist[12]), fontplayer, GRAY, (430, 420)))
+        else:
+            DISPLAYSURF.blit(*text_blit("Status-Games-Hand.", fontinstructions, WHITE, (390, 40)))
+            DISPLAYSURF.blit(*text_blit(player_status[0], fontmode, ORANGE, (350, 70)))
+            DISPLAYSURF.blit(*text_blit(player_status[1], fontmode, ORANGE, (350, 120)))
+            DISPLAYSURF.blit(*text_blit(player_status[2], fontmode, ORANGE, (350, 170)))
+            DISPLAYSURF.blit(*text_blit(player_status[3], fontmode, ORANGE, (350, 220)))
+            DISPLAYSURF.blit(*text_blit(player_status[4], fontmode, ORANGE, (350, 270)))
+            DISPLAYSURF.blit(*text_blit(player_status[5], fontmode, ORANGE, (350, 320)))
+            DISPLAYSURF.blit(*text_blit(player_status[6], fontmode, ORANGE, (350, 370)))
+            DISPLAYSURF.blit(*text_blit(player_status[7], fontmode, ORANGE, (350, 420)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[0]), fontmode, ORANGE, (390, 70)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[1]), fontmode, ORANGE, (390, 120)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[2]), fontmode, ORANGE, (390, 170)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[3]), fontmode, ORANGE, (390, 220)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[4]), fontmode, ORANGE, (390, 270)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[5]), fontmode, ORANGE, (390, 320)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[6]), fontmode, ORANGE, (390, 370)))
+            DISPLAYSURF.blit(*text_blit(str(player_games[7]), fontmode, ORANGE, (390, 420)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[0]), fontmode, ORANGE, (430, 70)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[1]), fontmode, ORANGE, (430, 120)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[2]), fontmode, ORANGE, (430, 170)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[3]), fontmode, ORANGE, (430, 220)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[4]), fontmode, ORANGE, (430, 270)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[5]), fontmode, ORANGE, (430, 320)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[6]), fontmode, ORANGE, (430, 370)))
+            DISPLAYSURF.blit(*text_blit(str(player_handicap[7]), fontmode, ORANGE, (430, 420)))
 
         for event in pygame.event.get():
             print(event)
+            print(section_index)
+            print(section_player)
             if event.type == pygame.QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 init = False
-            if player_picker:
+            if section_index == section_player:
                 if event.type == pygame.KEYUP:
                     if event.key in [pygame.K_UP, pygame.K_DOWN]:
                         player_index = select_player(event, player_index)
+                    if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
+                        section_index = select_section(event, section_index)
                     if event.key == pygame.K_SPACE:
-                        player_picker = False
+                        section_index = 0
                         initials = list(Players[player_index])
                         ii = 0
                 if event.type == pygame.JOYBUTTONDOWN:
-                    if event.button == 8:
-                        player_picker = False
+                    if event.button == 8:  # Select
+                        section_index = 0
                         initials = list(Players[player_index])
                         ii = 0
+                    if event.button == 9:  # Start
+                        init = False
                 if event.type == pygame.JOYAXISMOTION:
-                    if event.axis == 1:
+                    if event.axis == 1:  # Up/Down
                         player_index = select_player(event, player_index)
+                    if event.axis == 0:  # Left/Right
+                        section_index = select_section(event, section_index)
+                        if section_index == section_player:
+                            if event.type == pygame.KEYUP:
+                                if event.key in [pygame.K_UP, pygame.K_DOWN]:
+                                    player_index = select_player(event, player_index)
+                                if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
+                                    section_index = select_section(event, section_index)
+                                if event.key == pygame.K_SPACE:
+                                    section_index = 0
+                                    initials = list(Players[player_index])
+                                    ii = 0
+                            if event.type == pygame.JOYBUTTONDOWN:
+                                if event.button == 8:  # Select
+                                    section_index = 0
+                                    initials = list(Players[player_index])
+                                    ii = 0
+                                if event.button == 9:  # Start
+                                    init = False
+                            if event.type == pygame.JOYAXISMOTION:
+                                if event.axis == 1:  # Up/Down
+                                    player_index = select_player(event, player_index)
+                                if event.axis == 0:  # Left/Right
+                                    section_index = select_section(event, section_index)
+            elif section_index == section_handicap:
+                if mode_toggle == 1:
+                    if event.type == pygame.JOYBUTTONDOWN:
+                        if event.button == 9:  # Start
+                            if mode_sets:
+                                mode_sets = False
+                            else:
+                                mode_sets = True
+                        if event.button == 8:  # Select
+                            mode_toggle = 2
+                    if event.type == pygame.JOYAXISMOTION:
+                        if event.axis == 0:  # Left/Right
+                            section_index = select_section(event, section_index)
+                elif mode_toggle == 2:
+                    if mode_sets:
+                        if event.type == pygame.JOYAXISMOTION:
+                            if event.axis == 0 and event.value < -JVT:  # LEFT
+                                if mode_index == 0:
+                                    mode_index = 2
+                                else:
+                                    mode_index -= 1
+                            if event.axis == 0 and event.value > JVT:  # RIGHT
+                                if mode_index == 2:
+                                    mode_index = 0
+                                else:
+                                    mode_index += 1
+                            if event.axis == 1 and event.value < -JVT:  # UP
+                                if mode_index == 0:
+                                    setlist[0] += 1
+                                    for e in range(1, 8):
+                                        setlist[e] = setlist[0]
+                                elif mode_index == 1:
+                                    setlist[8] += 1
+                                    for e in range(9, 12):
+                                        setlist[e] = setlist[8]
+                                else:
+                                    setlist[12] += 1
+                                    setlist[13] += 1
+                            if event.axis == 1 and event.value > JVT:  # DOWN
+                                if mode_index == 0:
+                                    setlist[0] -= 1
+                                    for e in range(1, 8):
+                                        setlist[e] = setlist[0]
+                                elif mode_index == 1:
+                                    setlist[8] -= 1
+                                    for e in range(9, 12):
+                                        setlist[e] = setlist[8]
+                                else:
+                                    setlist[12] -= 1
+                                    setlist[13] -= 1
+                        if event.type == pygame.JOYBUTTONDOWN and event.button == 8:
+                            mode_toggle = 1
+                    else:
+                        if event.type == pygame.JOYAXISMOTION:
+                            if event.axis == 1:  # Up/Down
+                                player_index = select_player(event, player_index)
+                            if event.axis == 0:  # Left/Right
+                                mode_index = select_mode(event, mode_index)
+                        if event.type == pygame.JOYBUTTONDOWN:
+                            if event.button == 8:
+                                mode_toggle = 3
+                # else:
+                    # if mode_sets:
+                    #     if event.type == pygame.JOYAXISMOTION:
+                    #         if event.axis == 0 and event.value < - JVT:  # LEFT
+                    #             if mode_index == 0:
+                    #                 mode_index = 2
+                    #             else:
+                    #                 mode_index -= mode_index
+                    #         if event.axis == 0 and event.value > JVT:  # RIGHT
+                    #             if mode_index == 2:
+                    #                 mode_index = 0
+                    #             else:
+                    #                 mode_index += mode_index
+                    #         if event.axis == 1 and event.value < - JVT:
+                    #             if mode_index == 0:
+                    #                 v = setlist[0]
+                    #                 v -= 1
+                    #                 setlist[0:7] = v, v, v, v, v, v, v, v, v
+                    #                 print(setlist)
+                    #         elif event.axis == 1 and event.value > JVT:
+                    #             if mode_index == 0:
+                    #                 setlist[0] += 1
 
-            else:
+                    # if event.type == pygame.JOYAXISMOTION:
+                    #     if event.axis == 1 or event.axis == 0:  # Up/Down
+                    #             if mode_index == 1:
+                    #                 if setlist:
+                    #                     player_status[player_index] = PLAYER_STATUS_NEW
+                    #                 else:
+                    #                     player_status[player_index] = PLAYER_STATUS_EST
+                    #             elif mode_index == 2:
+                    #                 player_games[player_index] = update_games(event, player_index,
+                    #                                                           player_games[player_index])
+                    #             else:
+                    #                 player_handicap[player_index] = update_handicap(event, player_index,
+                    #                                                                 player_handicap[player_index])
+                    #         else:
+                    #             if mode_index == 1:
+                    #                 if player_status[player_index] == PLAYER_STATUS_EST:
+                    #                     player_status[player_index] = PLAYER_STATUS_NEW
+                    #                 else:
+                    #                     player_status[player_index] = PLAYER_STATUS_EST
+
+
+# TODO
+            else:  # PICKING LETTERS
                 if event.type == pygame.KEYUP:
                     if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
                         rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
-                        print(event)
-                        print(rectposx, rectposy, x, y)
                     if event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
-                        print("Initials: ", "".join(initials))
+                        # print("Initials: ", "".join(initials))
                         Players[player_index] = "".join(initials)
-                        print("Player:", Players[player_index])
-                        player_picker = True
+                        # print("Player:", Players[player_index])
+                        section_index = section_player
                         if player_index < 7:
                             player_index += 1
                         else:
@@ -271,21 +548,18 @@ def init_players():
                             ii = 0
                 if event.type == pygame.JOYAXISMOTION:
                     rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
-                    print(event)
-                    print(rectposx, rectposy, x, y)
                 if event.type == pygame.JOYBUTTONDOWN:
                     if event.button == 8:
-                        # print(letters[y][x])
                         initials[ii] = letters[y][x]
                         Players[player_index] = "".join(initials)
                         ii += 1
                         if ii > 7:
                             ii = 0
                     if event.button == 9:
-                        print("Initials: ", "".join(initials))
+                        # print("Initials: ", "".join(initials))
                         Players[player_index] = "".join(initials)
-                        print("Player:", Players[player_index])
-                        player_picker = True
+                        # print("Player:", Players[player_index])
+                        section_index = section_player
                         if player_index < 7:
                             player_index += 1
                         else:
@@ -309,7 +583,7 @@ def init_players():
         print("List after first shuffle  : ", plist)
     wlist = [""] * 6
     plist.extend(wlist)
-    setlist = [3] * 8 + [5] * 4 + [7] * 2
+    # setlist = [3] * 8 + [5] * 4 + [7] * 2
     return plist, setlist
 
 
@@ -393,9 +667,7 @@ def main():
         #   player_list: for seeded players and winners
         #   scores: score list as they are entered
         for event in pygame.event.get():  # event handling loop
-            print(event)
-            print(pygame.JOYBUTTONDOWN)
-            print(event.button)
+            # print(event)
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE) or \
                     (event.type == pygame.JOYBUTTONDOWN and joystick.get_button(9)):  # START
                 pygame.quit()
