@@ -92,15 +92,134 @@ MGS2CXY = (505, 275)
 MGSET1CXY = (340, 235)
 MGSET2CXY = (465, 235)
 
-# ARGONNE POOL LEAGUE HANDICAP SYSTEM CONSTANTS
+# ARGONNE POOL LEAGUE HANDICAP SYSTEM CONSTANTS AND CHARTS
 PLAYER_STATUS_EST = "EST."
 PLAYER_STATUS_NEW = "NEW"
 
 
+def match_games(h1, h2):
+    maxh = max(h1, h2)
+    diffh = abs(h1 - h2)
+    if maxh < 40:  # CHART-4
+        if diffh < 20:
+            m1, m2 = 2, 2
+        else:
+            m1, m2 = 2, 1
+    elif maxh < 50:  # CHART-6
+        if diffh < 11:
+            m1, m2 = 3, 3
+        elif diffh < 27:
+            m1, m2 = 3, 2
+        elif diffh < 54:
+            m1, m2 = 4, 2
+        else:
+            m1, m2 = 4, 1
+    elif maxh < 70:  # CHART-8
+        if diffh < 7:
+            m1, m2 = 4, 4
+        elif diffh < 19:
+            m1, m2 = 4, 3
+        elif diffh < 30:
+            m1, m2 = 5, 3
+        elif diffh < 40:
+            m1, m2 = 4, 2
+        elif diffh < 49:
+            m1, m2 = 5, 2
+        elif diffh < 69:
+            m1, m2 = 6, 2
+        else:
+            m1, m2 = 5, 1
+    elif maxh < 90:  # CHART-10
+        if diffh < 6:
+            m1, m2 = 5, 5
+        elif diffh < 15:
+            m1, m2 = 5, 4
+        elif diffh < 22:
+            m1, m2 = 6, 4
+        elif diffh < 29:
+            m1, m2 = 5, 3
+        elif diffh < 37:
+            m1, m2 = 6, 3
+        elif diffh < 47:
+            m1, m2 = 7, 3
+        elif diffh < 57:
+            m1, m2 = 6, 2
+        elif diffh < 63:
+            m1, m2 = 7, 2
+        elif diffh < 83:
+            m1, m2 = 8, 2
+        elif diffh < 102:
+            m1, m2 = 7, 1
+        else:
+            m1, m2 = 8, 1
+    else:  # CHART-12
+        if diffh < 5:
+            m1, m2 = 6, 6
+        elif diffh < 12:
+            m1, m2 = 6, 5
+        elif diffh < 18:
+            m1, m2 = 7, 5
+        elif diffh < 23:
+            m1, m2 = 6, 4
+        elif diffh < 29:
+            m1, m2 = 7, 4
+        elif diffh < 36:
+            m1, m2 = 8, 4
+        elif diffh < 43:
+            m1, m2 = 7, 3
+        elif diffh < 49:
+            m1, m2 = 8, 3
+        elif diffh < 59:
+            m1, m2 = 9, 3
+        elif diffh < 69:
+            m1, m2 = 8, 2
+        elif diffh < 75:
+            m1, m2 = 9, 2
+        elif diffh < 94:
+            m1, m2 = 10, 2
+        elif diffh < 113:
+            m1, m2 = 9, 1
+        else:
+            m1, m2 = 10, 1
 
-def text_objects(text, font):
-    textsurface = font.render(text, True, BLACK)
-    return textsurface, textsurface.get_rect()
+    if h1 == maxh:
+        g1, g2 = m1, m2
+    else:
+        g1, g2 = m2, m1
+
+    print("Handicaps:", h1, h2, "for Match Games:", g1, ":", g2)
+    return g1, g2
+
+
+def change_skill_rating(games, status, win):
+    if status == PLAYER_STATUS_EST:
+        if games < 3:
+            delta = 3
+        elif games < 14:
+            delta = 2
+        else:
+            delta = 1
+    else:
+        if games < 2:
+            delta = 6
+        if games < 3:
+            delta = 4
+        if games < 6:
+            delta = 3
+        elif games < 17:
+            delta = 2
+        else:
+            delta = 1
+    if win:
+        return delta
+    else:
+        return -delta
+
+
+# FUNCTIONS
+# def text_objects(text, font):
+#     textsurface = font.render(text, True, BLACK)
+#     return textsurface, textsurface.get_rect()
 
 
 def text_blit(text, font, clr, center):
@@ -177,13 +296,13 @@ def select_mode(event, index):
     return index
 
 
-def update_games(event, index, value):
-    if event.type == pygame.JOYAXISMOTION:
-        if sets:  # SETS
-            if modeinx == 0:  # Quarter finals
-                if event.axis == 0 and event.value > JVT:
-                    value += 1
-    return value
+# def update_games(event, index, value):
+#     if event.type == pygame.JOYAXISMOTION:
+#         if sets:  # SETS
+#             if modeinx == 0:  # Quarter finals
+#                 if event.axis == 0 and event.value > JVT:
+#                     value += 1
+#     return value
 
 
 def letterpicker(event, rectposx, rectposy, x, y):
@@ -249,6 +368,8 @@ def init_players():
     section_start = 3
     mode_toggle = 1  # 1:Tgggle, 2:Select, 3:Set Value
     mode_sets = True
+    seed_toggle = True  # True for set seed
+    start_confirmation = False
     setlist = [3] * 8 + [5] * 4 + [7] * 2
     rectposx = rectposxmin
     rectposy = rectposymin
@@ -297,17 +418,29 @@ def init_players():
             else:
                 pygame.draw.rect(DISPLAYSURF, RED, [mode_x + mode_hgap * mode_index, mode_y + mode_vgap * player_index,
                                                     mode_square, mode_square], 2)
-                pygame.draw.rect(DISPLAYSURF, RED, [mode_x + mode_hgap * mode_index - 2 ,
+                pygame.draw.rect(DISPLAYSURF, RED, [mode_x + mode_hgap * mode_index - 2,
                                                     mode_y + mode_vgap * player_index - 2,
                                                     mode_square + 5, mode_square + 5], 1)
             DISPLAYSURF.blit(*text_blit("Start to toggle mode/enter; Select to activate cell",
                                         fontinstructions, WHITE, (200, 460)))
+        elif section_index == section_start:
+            pygame.draw.rect(DISPLAYSURF, RED, [580, 6, 120, 40], 2)
+            if start_confirmation:
+                pygame.draw.rect(DISPLAYSURF, GRAY, [200, 220, 400, 40])
+                pygame.draw.rect(DISPLAYSURF, RED, [200, 220, 400, 40], 2)
+                DISPLAYSURF.blit(*text_blit("Start to Start Tournament; Select to cancel",
+                                            fontinstructions, WHITE, (400, 240)))
         else:
             pygame.draw.rect(DISPLAYSURF, RED, [rectposx, rectposy, 50, 50], 2)
             pygame.draw.rect(DISPLAYSURF, RED, [name_x + ii*name_gap, name_y + player_vgap * player_index,
                                                 name_square, name_square], 2)
             DISPLAYSURF.blit(*text_blit("Select to enter letter; Start to return",
                                         fontinstructions, WHITE, (200, 460)))
+        if seed_toggle:
+            pygame.draw.rect(DISPLAYSURF, RED, [565, 70, 170, 25], 2)
+        else:
+            pygame.draw.rect(DISPLAYSURF, RED, [565, 100, 170, 25], 2)
+
         # PLAYER NAMES
         DISPLAYSURF.blit(fontplayer.render(Players[0], True, ORANGE), (45, 50))
         DISPLAYSURF.blit(fontplayer.render(Players[1], True, ORANGE), (45, 100))
@@ -369,7 +502,6 @@ def init_players():
             DISPLAYSURF.blit(*text_blit(str(player_handicap[5]), fontmode, ORANGE, (430, 320)))
             DISPLAYSURF.blit(*text_blit(str(player_handicap[6]), fontmode, ORANGE, (430, 370)))
             DISPLAYSURF.blit(*text_blit(str(player_handicap[7]), fontmode, ORANGE, (430, 420)))
-
         for event in pygame.event.get():
             print(event)
             print(section_index)
@@ -421,6 +553,7 @@ def init_players():
                                 if event.axis == 0:  # Left/Right
                                     section_index = select_section(event, section_index)
             elif section_index == section_handicap:
+                player_index = 0
                 if mode_toggle == 1:
                     if event.type == pygame.JOYBUTTONDOWN:
                         if event.button == 9:  # Start
@@ -481,51 +614,27 @@ def init_players():
                         if event.type == pygame.JOYBUTTONDOWN:
                             if event.button == 8:
                                 mode_toggle = 3
-                # else:
-                    # if mode_sets:
-                    #     if event.type == pygame.JOYAXISMOTION:
-                    #         if event.axis == 0 and event.value < - JVT:  # LEFT
-                    #             if mode_index == 0:
-                    #                 mode_index = 2
-                    #             else:
-                    #                 mode_index -= mode_index
-                    #         if event.axis == 0 and event.value > JVT:  # RIGHT
-                    #             if mode_index == 2:
-                    #                 mode_index = 0
-                    #             else:
-                    #                 mode_index += mode_index
-                    #         if event.axis == 1 and event.value < - JVT:
-                    #             if mode_index == 0:
-                    #                 v = setlist[0]
-                    #                 v -= 1
-                    #                 setlist[0:7] = v, v, v, v, v, v, v, v, v
-                    #                 print(setlist)
-                    #         elif event.axis == 1 and event.value > JVT:
-                    #             if mode_index == 0:
-                    #                 setlist[0] += 1
-
-                    # if event.type == pygame.JOYAXISMOTION:
-                    #     if event.axis == 1 or event.axis == 0:  # Up/Down
-                    #             if mode_index == 1:
-                    #                 if setlist:
-                    #                     player_status[player_index] = PLAYER_STATUS_NEW
-                    #                 else:
-                    #                     player_status[player_index] = PLAYER_STATUS_EST
-                    #             elif mode_index == 2:
-                    #                 player_games[player_index] = update_games(event, player_index,
-                    #                                                           player_games[player_index])
-                    #             else:
-                    #                 player_handicap[player_index] = update_handicap(event, player_index,
-                    #                                                                 player_handicap[player_index])
-                    #         else:
-                    #             if mode_index == 1:
-                    #                 if player_status[player_index] == PLAYER_STATUS_EST:
-                    #                     player_status[player_index] = PLAYER_STATUS_NEW
-                    #                 else:
-                    #                     player_status[player_index] = PLAYER_STATUS_EST
-
-
-# TODO
+            elif section_index == section_start:  # TODO
+                if event.type == pygame.JOYAXISMOTION:
+                    if event.axis == 1 and abs(event.value) > JVT:
+                        if seed_toggle:
+                            seed_toggle = False
+                        else:
+                            seed_toggle = True
+                    elif event.axis == 0 and event.value > JVT:  #  RIGHT
+                        section_index = section_player
+                    elif event.axis == 0 and event.value < -JVT:  # LEFT
+                        section_index = section_handicap
+                if event.type == pygame.JOYBUTTONDOWN:
+                    if start_confirmation:
+                        if event.button == 8:
+                            start_confirmation = False
+                        else:
+                            start_confirmation = False
+                            init = False
+                    elif event.button == 8:
+                        start_confirmation = True
+                # print("Start Section")
             else:  # PICKING LETTERS
                 if event.type == pygame.KEYUP:
                     if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
@@ -570,7 +679,7 @@ def init_players():
     # Get players name
 
     # Random seed / no seed
-    rnd = 0
+
     # Put names on Display
 
     # Return seeded players 1v8 vs 4v5 - 3v6 vs 2v7
@@ -578,7 +687,7 @@ def init_players():
     plist = [str(Players[0]).strip(), str(Players[7]).strip(), str(Players[3]).strip(), str(Players[4]).strip(),
              str(Players[2]).strip(), str(Players[5]).strip(), str(Players[1]).strip(), str(Players[6]).strip()]
     print("Original list : ",  plist)
-    if rnd == 1:
+    if not seed_toggle:
         random.shuffle(plist)  # shuffle method
         print("List after first shuffle  : ", plist)
     wlist = [""] * 6
