@@ -11,8 +11,19 @@ from pygame.locals import *
 FPS = 30  # frames per second, the general speed of the program
 WINDOWWIDTH = 800  # size of window's width in pixels
 WINDOWHEIGHT = 480  # size of windows' height in pixels
+#  Line 707 for full screen on Pi
 
 JVT = .9  # Joystick Value Threshold
+# the values for the following constants are not used themselves
+START = "start"
+SELECT = "select"
+UP = "up"
+RIGHT = "right"
+DOWN = "down"
+LEFT = "Left"
+LEFTRIGHT = "lr"
+UPDOWN = "ud"
+STICK = "joystick"
 
 #       R    G    B
 BLACK = (0, 0, 0)
@@ -47,7 +58,6 @@ rectposymin = letterMarginTop - squareAlignement
 rectposymax = letterMarginTop + letterGap * ymax - squareAlignement
 rectposxstep = letterGap
 rectposystep = letterGap
-
 
 # Player Name, Score box center coordinates (add approx. 3px to vertical center for uppercase letters)
 G1P1CXY = (95, 23)
@@ -92,7 +102,7 @@ MGS2CXY = (505, 275)
 MGSET1CXY = (340, 235)
 MGSET2CXY = (465, 235)
 
-# ARGONNE POOL LEAGUE HANDICAP SYSTEM CONSTANTS AND CHARTS
+# ARGONNE POOL LEAGUE HANDICAP SYSTEM CONSTANTS AND CHARTS/FUNCTIONS
 PLAYER_STATUS_EST = "EST."
 PLAYER_STATUS_NEW = "NEW"
 
@@ -222,79 +232,145 @@ def change_skill_rating(games, status, win):
 #     return textsurface, textsurface.get_rect()
 
 
+def check_button(event, test):
+    if event.type == KEYUP:
+        if test == START and event.key == K_SPACE:
+            return True
+        if test == SELECT and event.key == K_RETURN:
+            return True
+        if test == UP and event.key == K_UP:
+            return True
+        if test == RIGHT and event.key == K_RIGHT:
+            return True
+        if test == DOWN and event.key == K_DOWN:
+            return True
+        if test == LEFT and event.key == K_LEFT:
+            return True
+        if test == LEFTRIGHT and (event.key == K_LEFT or event.key == K_RIGHT):
+            return True
+        if test == UPDOWN and (event.key == K_UP or event.key == K_DOWN):
+            return True
+        if test == STICK and (event.key == K_UP or event.key == K_DOWN or event.key == K_LEFT or event.key == K_RIGHT):
+            return True
+    if event.type == pygame.JOYBUTTONUP:  # USING A GEEEKPI JOYSTICK
+        if test == START and event.button == 9:  # ST
+            return True
+        if test == SELECT and event.button == 8:  # SE
+            return True
+        if test == UP and event.button == 0:  # K1
+            return True
+        if test == RIGHT and event.button == 1:  # K2
+            return True
+        if test == DOWN and event.button == 2:  # K3
+            return True
+        if test == LEFT and event.button == 3:  # K4
+            return True
+        if test == LEFTRIGHT and (event.button == 1 or event.button == 3):  # K2 or K4
+            return True
+        if test == UPDOWN and (event.button == 0 or event.button == 2):  # K1 or K3
+            return True
+        if test == STICK and (event.button == 0 or event.button == 1 or event.button == 2 or event.button == 3):  #K1-3
+            return True
+    return False
+
+
 def text_blit(text, font, clr, center):
     textrender = font.render(text, True, clr)
     return textrender, textrender.get_rect(center=center)
 
 
 def select_section(event, index):
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_RIGHT:
-            index += 1
-            if index > 3:
-                index = 1
-        if event.key == pygame.K_LEFT:
-            index -= 1
-            if index < 1:
-                index = 3
-    # axis tested to be 1
-    if event.type == pygame.JOYAXISMOTION:
-        if event.axis == 0 and event.value > JVT:  # RIGHT
-            index += 1
-            if index > 3:
-                index = 1
-        if event.axis == 0 and event.value < -JVT:  # LEFT
-            index -= 1
-            if index < 1:
-                index = 3
+    # if event.type == pygame.KEYUP:
+    #     if event.key == pygame.K_RIGHT:
+    #         index += 1
+    #         if index > 3:
+    #             index = 1
+    #     if event.key == pygame.K_LEFT:
+    #         index -= 1
+    #         if index < 1:
+    #             index = 3
+    # # axis tested to be 1
+    # if event.type == pygame.JOYBUTTONUP:
+    #     if event.button == 1:  # RIGHT / K2
+    #         index += 1
+    #         if index > 3:
+    #             index = 1
+    #     if event.axis == 0 and event.value < -JVT:  # LEFT
+    #         index -= 1
+    #         if index < 1:
+    #             index = 3
+    if check_button(event, RIGHT):
+        index += 1
+        if index > 3:
+            index = 1
+    if check_button(event, LEFT):
+        index -= 1
+        if index < 1:
+            index = 3
     return index
 
 
 def select_player(event, index):
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_DOWN:
-            index += 1
-            if index > 7:
-                index = 0
-        if event.key == pygame.K_UP:
-            index -= 1
-            if index < 0:
-                index = 7
+    # if event.type == pygame.KEYUP:
+    #     if event.key == pygame.K_DOWN:
+    #         index += 1
+    #         if index > 7:
+    #             index = 0
+    #     if event.key == pygame.K_UP:
+    #         index -= 1
+    #         if index < 0:
+    #             index = 7
     # axis tested to be 1
-    if event.type == pygame.JOYAXISMOTION:
-        if event.axis == 1 and event.value > JVT:
-            index += 1
-            if index > 7:
-                index = 0
-        if event.axis == 1 and event.value < -JVT:
-            index -= 1
-            if index < 0:
-                index = 7
+    # if event.type == pygame.JOYAXISMOTION:
+    #     if event.axis == 1 and event.value > JVT:
+    #         index += 1
+    #         if index > 7:
+    #             index = 0
+    #     if event.axis == 1 and event.value < -JVT:
+    #         index -= 1
+    #         if index < 0:
+    #             index = 7
+    if check_button(event, DOWN):
+        index += 1
+        if index > 7:
+            index = 0
+    if check_button(event, UP):
+        index -= 1
+        if index < 0:
+            index = 7
     return index
 
 
 def select_mode(event, index):
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_RIGHT:
-            index += 1
-            if index > 2:
-                index = 0
-        if event.key == pygame.K_LEFT:
-            index -= 1
-            if index < 0:
-                index = 2
-    # axis tested to be 1
-    if event.type == pygame.JOYAXISMOTION:
-        if event.axis == 0 and event.value > JVT:
-            index += 1
-            if index > 2:
-                index = 0
-        if event.axis == 0 and event.value < -JVT:
-            index -= 1
-            if index < 0:
-                index = 2
+    # if event.type == pygame.KEYUP:
+    #     if event.key == pygame.K_RIGHT:
+    #         index += 1
+    #         if index > 2:
+    #             index = 0
+    #     if event.key == pygame.K_LEFT:
+    #         index -= 1
+    #         if index < 0:
+    #             index = 2
+    # # axis tested to be 1
+    # if event.type == pygame.JOYAXISMOTION:
+    #     if event.axis == 0 and event.value > JVT:
+    #         index += 1
+    #         if index > 2:
+    #             index = 0
+    #     if event.axis == 0 and event.value < -JVT:
+    #         index -= 1
+    #         if index < 0:
+    #             index = 2
+    # return index
+    if check_button(event, RIGHT):
+        index += 1
+        if index > 2:
+            index = 0
+    if check_button(event, LEFT):
+        index -= 1
+        if index < 0:
+            index = 2
     return index
-
 
 # def update_games(event, index, value):
 #     if event.type == pygame.JOYAXISMOTION:
@@ -306,56 +382,80 @@ def select_mode(event, index):
 
 
 def letterpicker(event, rectposx, rectposy, x, y):
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_RIGHT:
-            rectposx += rectposxstep
-            x += 1
-            if rectposx > rectposxmax:
-                rectposx = rectposxmin
-                x = 0
-        if event.key == pygame.K_LEFT:
-            rectposx -= rectposxstep
-            x -= 1
-            if rectposx < rectposxmin:
-                rectposx = rectposxmax
-                x = xmax
-        if event.key == pygame.K_DOWN:
-            rectposy += rectposystep
-            y += 1
-            if rectposy > rectposymax:
-                rectposy = rectposymin
-                y = 0
-        if event.key == pygame.K_UP:
-            rectposy -= rectposystep
-            y -= 1
-            if rectposy < rectposymin:
-                rectposy = rectposymax
-                y = ymax
-    if event.type == pygame.JOYAXISMOTION:
-        if event.axis == 0 and event.value > JVT:  # RIGHT
-            rectposx += rectposxstep
-            x += 1
-            if rectposx > rectposxmax:
-                rectposx = rectposxmin
-                x = 0
-        if event.axis == 0 and event.value < -JVT:  # LEFT
-            rectposx -= rectposxstep
-            x -= 1
-            if rectposx < rectposxmin:
-                rectposx = rectposxmax
-                x = xmax
-        if event.axis == 1 and event.value > JVT:  # DOWN
-            rectposy += rectposystep
-            y += 1
-            if rectposy > rectposymax:
-                rectposy = rectposymin
-                y = 0
-        if event.axis == 1 and event.value < -JVT:  # UP
-            rectposy -= rectposystep
-            y -= 1
-            if rectposy < rectposymin:
-                rectposy = rectposymax
-                y = ymax
+    # if event.type == pygame.KEYUP:
+    #     if event.key == pygame.K_RIGHT:
+    #         rectposx += rectposxstep
+    #         x += 1
+    #         if rectposx > rectposxmax:
+    #             rectposx = rectposxmin
+    #             x = 0
+    #     if event.key == pygame.K_LEFT:
+    #         rectposx -= rectposxstep
+    #         x -= 1
+    #         if rectposx < rectposxmin:
+    #             rectposx = rectposxmax
+    #             x = xmax
+    #     if event.key == pygame.K_DOWN:
+    #         rectposy += rectposystep
+    #         y += 1
+    #         if rectposy > rectposymax:
+    #             rectposy = rectposymin
+    #             y = 0
+    #     if event.key == pygame.K_UP:
+    #         rectposy -= rectposystep
+    #         y -= 1
+    #         if rectposy < rectposymin:
+    #             rectposy = rectposymax
+    #             y = ymax
+    if check_button(event, RIGHT):
+        rectposx += rectposxstep
+        x += 1
+        if rectposx > rectposxmax:
+            rectposx = rectposxmin
+            x = 0
+    if check_button(event, LEFT):
+        rectposx -= rectposxstep
+        x -= 1
+        if rectposx < rectposxmin:
+            rectposx = rectposxmax
+            x = xmax
+    if check_button(event, DOWN):
+        rectposy += rectposystep
+        y += 1
+        if rectposy > rectposymax:
+            rectposy = rectposymin
+            y = 0
+    if check_button(event, UP):
+        rectposy -= rectposystep
+        y -= 1
+        if rectposy < rectposymin:
+            rectposy = rectposymax
+            y = ymax
+    # if event.type == pygame.JOYAXISMOTION:
+    #     if event.axis == 0 and event.value > JVT:  # RIGHT
+    #         rectposx += rectposxstep
+    #         x += 1
+    #         if rectposx > rectposxmax:
+    #             rectposx = rectposxmin
+    #             x = 0
+    #     if event.axis == 0 and event.value < -JVT:  # LEFT
+    #         rectposx -= rectposxstep
+    #         x -= 1
+    #         if rectposx < rectposxmin:
+    #             rectposx = rectposxmax
+    #             x = xmax
+    #     if event.axis == 1 and event.value > JVT:  # DOWN
+    #         rectposy += rectposystep
+    #         y += 1
+    #         if rectposy > rectposymax:
+    #             rectposy = rectposymin
+    #             y = 0
+    #     if event.axis == 1 and event.value < -JVT:  # UP
+    #         rectposy -= rectposystep
+    #         y -= 1
+    #         if rectposy < rectposymin:
+    #             rectposy = rectposymax
+    #             y = ymax
     return rectposx, rectposy, x, y
 
 
@@ -407,7 +507,7 @@ def init_players():
                                                 player_square, player_square], 2)
             pygame.draw.rect(DISPLAYSURF, RED, [80, 5, 165, 35], 2)
             DISPLAYSURF.blit(*text_blit("Select to enter name; L/R to change section",
-                                        fontinstructions, WHITE, (200, 460)))
+                                        fontinstructions, WHITE, (205, 460)))
         elif section_index == section_handicap:
             pygame.draw.rect(DISPLAYSURF, RED, [304, 8, 175, 20], 2)
             if mode_toggle == 1:
@@ -422,9 +522,11 @@ def init_players():
                                                     mode_y + mode_vgap * player_index - 2,
                                                     mode_square + 5, mode_square + 5], 1)
             DISPLAYSURF.blit(*text_blit("Start to toggle mode/enter; Select to activate cell",
-                                        fontinstructions, WHITE, (200, 460)))
+                                        fontinstructions, WHITE, (240, 460)))
         elif section_index == section_start:
             pygame.draw.rect(DISPLAYSURF, RED, [580, 6, 120, 40], 2)
+            DISPLAYSURF.blit(*text_blit("Start to Start Tournament",
+                                        fontinstructions, WHITE, (300, 460)))
             if start_confirmation:
                 pygame.draw.rect(DISPLAYSURF, GRAY, [200, 220, 400, 40])
                 pygame.draw.rect(DISPLAYSURF, RED, [200, 220, 400, 40], 2)
@@ -503,193 +605,265 @@ def init_players():
             DISPLAYSURF.blit(*text_blit(str(player_handicap[6]), fontmode, ORANGE, (430, 370)))
             DISPLAYSURF.blit(*text_blit(str(player_handicap[7]), fontmode, ORANGE, (430, 420)))
         for event in pygame.event.get():
-            print(event)
-            print(section_index)
-            print(section_player)
             if event.type == pygame.QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 init = False
             if section_index == section_player:
-                if event.type == pygame.KEYUP:
-                    if event.key in [pygame.K_UP, pygame.K_DOWN]:
-                        player_index = select_player(event, player_index)
-                    if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
-                        section_index = select_section(event, section_index)
-                    if event.key == pygame.K_SPACE:
-                        section_index = 0
-                        initials = list(Players[player_index])
-                        ii = 0
-                if event.type == pygame.JOYBUTTONDOWN:
-                    if event.button == 8:  # Select
-                        section_index = 0
-                        initials = list(Players[player_index])
-                        ii = 0
-                    if event.button == 9:  # Start
-                        init = False
-                if event.type == pygame.JOYAXISMOTION:
-                    if event.axis == 1:  # Up/Down
-                        player_index = select_player(event, player_index)
-                    if event.axis == 0:  # Left/Right
-                        section_index = select_section(event, section_index)
-                        if section_index == section_player:
-                            if event.type == pygame.KEYUP:
-                                if event.key in [pygame.K_UP, pygame.K_DOWN]:
-                                    player_index = select_player(event, player_index)
-                                if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
-                                    section_index = select_section(event, section_index)
-                                if event.key == pygame.K_SPACE:
-                                    section_index = 0
-                                    initials = list(Players[player_index])
-                                    ii = 0
-                            if event.type == pygame.JOYBUTTONDOWN:
-                                if event.button == 8:  # Select
-                                    section_index = 0
-                                    initials = list(Players[player_index])
-                                    ii = 0
-                                if event.button == 9:  # Start
-                                    init = False
-                            if event.type == pygame.JOYAXISMOTION:
-                                if event.axis == 1:  # Up/Down
-                                    player_index = select_player(event, player_index)
-                                if event.axis == 0:  # Left/Right
-                                    section_index = select_section(event, section_index)
+                # if event.type == pygame.KEYUP:
+                #     if event.key in [pygame.K_UP, pygame.K_DOWN]:
+                #         player_index = select_player(event, player_index)
+                #     if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
+                #         section_index = select_section(event, section_index)
+                #     if event.key == pygame.K_SPACE:
+                #         section_index = 0
+                #         initials = list(Players[player_index])
+                #         ii = 0
+                if check_button(event, UPDOWN):
+                    player_index = select_player(event, player_index)
+                if check_button(event, LEFTRIGHT):
+                    section_index = select_section(event, section_index)
+                if check_button(event, SELECT):
+                    section_index = 0
+                    initials = list(Players[player_index])
+                    ii = 0
+
+                # if event.type == pygame.JOYBUTTONDOWN:
+                #     if event.button == 8:  # Select
+                #         section_index = 0
+                #         initials = list(Players[player_index])
+                #         ii = 0
+                #     if event.button == 9:  # Start
+                #         init = False
+
+
+                # if event.type == pygame.JOYAXISMOTION:
+                #     if event.axis == 1:  # Up/Down
+                #         player_index = select_player(event, player_index)
+                #     if event.axis == 0:  # Left/Right
+                #         section_index = select_section(event, section_index)
+                #         if section_index == section_player:
+                #             if event.type == pygame.KEYUP:
+                #                 if event.key in [pygame.K_UP, pygame.K_DOWN]:
+                #                     player_index = select_player(event, player_index)
+                #                 if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
+                #                     section_index = select_section(event, section_index)
+                #                 if event.key == pygame.K_SPACE:
+                #                     section_index = 0
+                #                     initials = list(Players[player_index])
+                #                     ii = 0
+                #             if event.type == pygame.JOYBUTTONDOWN:
+                #                 if event.button == 8:  # Select
+                #                     section_index = 0
+                #                     initials = list(Players[player_index])
+                #                     ii = 0
+                #                 if event.button == 9:  # Start
+                #                     init = False
+                #             if event.type == pygame.JOYAXISMOTION:
+                #                 if event.axis == 1:  # Up/Down
+                #                     player_index = select_player(event, player_index)
+                #                 if event.axis == 0:  # Left/Right
+                #                     section_index = select_section(event, section_index)
             elif section_index == section_handicap:
                 player_index = 0
                 if mode_toggle == 1:
-                    if event.type == pygame.JOYBUTTONDOWN:
-                        if event.button == 9:  # Start
-                            if mode_sets:
-                                mode_sets = False
-                            else:
-                                mode_sets = True
-                        if event.button == 8:  # Select
-                            mode_toggle = 2
-                    if event.type == pygame.JOYAXISMOTION:
-                        if event.axis == 0:  # Left/Right
-                            section_index = select_section(event, section_index)
+                    if check_button(event, START):
+                        if mode_sets:
+                            mode_sets = False
+                        else:
+                            mode_sets = True
+                    if check_button(event, SELECT):
+                        mode_toggle = 2
+                    if check_button(event, LEFTRIGHT):
+                        section_index = select_section(event, section_index)
+                    # if event.type == pygame.JOYBUTTONDOWN:
+                    #     if event.button == 9:  # Start
+                    #         if mode_sets:
+                    #             mode_sets = False
+                    #         else:
+                    #             mode_sets = True
+                    #     if event.button == 8:  # Select
+                    #         mode_toggle = 2
+                    # if event.type == pygame.JOYAXISMOTION:
+                    #     if event.axis == 0:  # Left/Right
+                    #         section_index = select_section(event, section_index)
                 elif mode_toggle == 2:
                     if mode_sets:
-                        if event.type == pygame.JOYAXISMOTION:
-                            if event.axis == 0 and event.value < -JVT:  # LEFT
-                                if mode_index == 0:
-                                    mode_index = 2
-                                else:
-                                    mode_index -= 1
-                            if event.axis == 0 and event.value > JVT:  # RIGHT
-                                if mode_index == 2:
-                                    mode_index = 0
-                                else:
-                                    mode_index += 1
-                            if event.axis == 1 and event.value < -JVT:  # UP
-                                if mode_index == 0:
-                                    setlist[0] += 1
-                                    for e in range(1, 8):
-                                        setlist[e] = setlist[0]
-                                elif mode_index == 1:
-                                    setlist[8] += 1
-                                    for e in range(9, 12):
-                                        setlist[e] = setlist[8]
-                                else:
-                                    setlist[12] += 1
-                                    setlist[13] += 1
-                            if event.axis == 1 and event.value > JVT:  # DOWN
-                                if mode_index == 0:
-                                    setlist[0] -= 1
-                                    for e in range(1, 8):
-                                        setlist[e] = setlist[0]
-                                elif mode_index == 1:
-                                    setlist[8] -= 1
-                                    for e in range(9, 12):
-                                        setlist[e] = setlist[8]
-                                else:
-                                    setlist[12] -= 1
-                                    setlist[13] -= 1
-                        if event.type == pygame.JOYBUTTONDOWN and event.button == 8:
+                        if check_button(event, LEFT):
+                            if mode_index == 0:
+                                mode_index = 2
+                            else:
+                                mode_index -= 1
+                        if check_button(event, RIGHT):
+                            if mode_index == 2:
+                                mode_index = 0
+                            else:
+                                mode_index += 1
+                        if check_button(event, UP):
+                            if mode_index == 0:
+                                setlist[0] += 1
+                                for e in range(1, 8):
+                                    setlist[e] = setlist[0]
+                            elif mode_index == 1:
+                                setlist[8] += 1
+                                for e in range(9, 12):
+                                    setlist[e] = setlist[8]
+                            else:
+                                setlist[12] += 1
+                                setlist[13] += 1
+                        if check_button(event, DOWN):
+                            if mode_index == 0:
+                                setlist[0] -= 1
+                                for e in range(1, 8):
+                                    setlist[e] = setlist[0]
+                            elif mode_index == 1:
+                                setlist[8] -= 1
+                                for e in range(9, 12):
+                                    setlist[e] = setlist[8]
+                            else:
+                                setlist[12] -= 1
+                                setlist[13] -= 1
+                        if check_button(event, SELECT):
                             mode_toggle = 1
+                        # if event.type == pygame.JOYAXISMOTION:
+                        #     if event.axis == 0 and event.value < -JVT:  # LEFT
+                        #         if mode_index == 0:
+                        #             mode_index = 2
+                        #         else:
+                        #             mode_index -= 1
+                        #     if event.axis == 0 and event.value > JVT:  # RIGHT
+                        #         if mode_index == 2:
+                        #             mode_index = 0
+                        #         else:
+                        #             mode_index += 1
+                        #     if event.axis == 1 and event.value < -JVT:  # UP
+                        #         if mode_index == 0:
+                        #             setlist[0] += 1
+                        #             for e in range(1, 8):
+                        #                 setlist[e] = setlist[0]
+                        #         elif mode_index == 1:
+                        #             setlist[8] += 1
+                        #             for e in range(9, 12):
+                        #                 setlist[e] = setlist[8]
+                        #         else:
+                        #             setlist[12] += 1
+                        #             setlist[13] += 1
+                        #     if event.axis == 1 and event.value > JVT:  # DOWN
+                        #         if mode_index == 0:
+                        #             setlist[0] -= 1
+                        #             for e in range(1, 8):
+                        #                 setlist[e] = setlist[0]
+                        #         elif mode_index == 1:
+                        #             setlist[8] -= 1
+                        #             for e in range(9, 12):
+                        #                 setlist[e] = setlist[8]
+                        #         else:
+                        #             setlist[12] -= 1
+                        #             setlist[13] -= 1
+                        # if event.type == pygame.JOYBUTTONDOWN and event.button == 8:
+                        #     mode_toggle = 1
                     else:
-                        if event.type == pygame.JOYAXISMOTION:
-                            if event.axis == 1:  # Up/Down
-                                player_index = select_player(event, player_index)
-                            if event.axis == 0:  # Left/Right
-                                mode_index = select_mode(event, mode_index)
-                        if event.type == pygame.JOYBUTTONDOWN:
-                            if event.button == 8:
-                                mode_toggle = 3
-            elif section_index == section_start:  # TODO
-                if event.type == pygame.JOYAXISMOTION:
-                    if event.axis == 1 and abs(event.value) > JVT:
-                        if seed_toggle:
-                            seed_toggle = False
-                        else:
-                            seed_toggle = True
-                    elif event.axis == 0 and event.value > JVT:  #  RIGHT
-                        section_index = section_player
-                    elif event.axis == 0 and event.value < -JVT:  # LEFT
-                        section_index = section_handicap
-                if event.type == pygame.JOYBUTTONDOWN:
-                    if start_confirmation:
-                        if event.button == 8:
-                            start_confirmation = False
-                        else:
-                            start_confirmation = False
-                            init = False
-                    elif event.button == 8:
-                        start_confirmation = True
-                # print("Start Section")
+                        if check_button(event, UPDOWN):
+                            player_index = select_player(event, player_index)
+                        if check_button(event, LEFTRIGHT):
+                            mode_index = select_mode(event, mode_index)
+                        if check_button(event, SELECT):
+                            mode_toggle = 3
+                        # if event.type == pygame.JOYAXISMOTION:
+                        #     if event.axis == 1:  # Up/Down
+                        #         player_index = select_player(event, player_index)
+                        #     if event.axis == 0:  # Left/Right
+                        #         mode_index = select_mode(event, mode_index)
+                        # if event.type == pygame.JOYBUTTONDOWN:
+                        #     if event.button == 8:
+                        #         mode_toggle = 3
+            elif section_index == section_start:  #
+                if check_button(event, UPDOWN):
+                    if seed_toggle:
+                        seed_toggle = False
+                    else:
+                        seed_toggle = True
+                if check_button(event, RIGHT):
+                    section_index = section_player
+                if check_button(event, LEFT):
+                    section_index = section_handicap
+                if check_button(event, START):
+                    init = False
+                    # TODO: confirmation box
+
+                # if event.type == pygame.JOYAXISMOTION:
+                #     if event.axis == 1 and abs(event.value) > JVT:
+                #         if seed_toggle:
+                #             seed_toggle = False
+                #         else:
+                #             seed_toggle = True
+                #     elif event.axis == 0 and event.value > JVT:  #  RIGHT
+                #         section_index = section_player
+                #     elif event.axis == 0 and event.value < -JVT:  # LEFT
+                #         section_index = section_handicap
+                # if event.type == pygame.JOYBUTTONDOWN:
+                #     if start_confirmation:
+                #         if event.button == 8:
+                #             start_confirmation = False
+                #         else:
+                #             start_confirmation = False
+                #             init = False
+                #     elif event.button == 8:
+                #         start_confirmation = True
             else:  # PICKING LETTERS
-                if event.type == pygame.KEYUP:
-                    if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
-                        rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
-                    if event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
-                        # print("Initials: ", "".join(initials))
-                        Players[player_index] = "".join(initials)
-                        # print("Player:", Players[player_index])
-                        section_index = section_player
-                        if player_index < 7:
-                            player_index += 1
-                        else:
-                            player_index = 0
-                    if event.key == pygame.K_SPACE:
-                        # print(letters[y][x])
-                        initials[ii] = letters[y][x]
-                        Players[player_index] = "".join(initials)
-                        ii += 1
-                        if ii > 7:
-                            ii = 0
-                if event.type == pygame.JOYAXISMOTION:
+                if check_button(event, STICK):
                     rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
-                if event.type == pygame.JOYBUTTONDOWN:
-                    if event.button == 8:
-                        initials[ii] = letters[y][x]
-                        Players[player_index] = "".join(initials)
-                        ii += 1
-                        if ii > 7:
-                            ii = 0
-                    if event.button == 9:
-                        # print("Initials: ", "".join(initials))
-                        Players[player_index] = "".join(initials)
-                        # print("Player:", Players[player_index])
-                        section_index = section_player
-                        if player_index < 7:
-                            player_index += 1
-                        else:
-                            player_index = 0
+                if check_button(event, SELECT):
+                    initials[ii] = letters[y][x]
+                    Players[player_index] = "".join(initials)
+                    ii += 1
+                    if ii > 7:
+                        ii = 0
+                if check_button(event, START):
+                    Players[player_index] = "".join(initials)
+                    section_index = section_player
+                    if player_index < 7:
+                        player_index += 1
+                    else:
+                        player_index = 0
+                #
+                # if event.type == pygame.KEYUP:
+                #     if event.key in [pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]:
+                #         rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
+                #     if event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
+                #         Players[player_index] = "".join(initials)
+                #         section_index = section_player
+                #         if player_index < 7:
+                #             player_index += 1
+                #         else:
+                #             player_index = 0
+                #     if event.key == pygame.K_SPACE:
+                #         initials[ii] = letters[y][x]
+                #         Players[player_index] = "".join(initials)
+                #         ii += 1
+                #         if ii > 7:
+                #             ii = 0
+                # if event.type == pygame.JOYAXISMOTION:
+                #     rectposx, rectposy, x, y = letterpicker(event, rectposx, rectposy, x, y)
+                # if event.type == pygame.JOYBUTTONDOWN:
+                #     if event.button == 8:
+                #         initials[ii] = letters[y][x]
+                #         Players[player_index] = "".join(initials)
+                #         ii += 1
+                #         if ii > 7:
+                #             ii = 0
+                #     if event.button == 9:
+                #         Players[player_index] = "".join(initials)
+                #         section_index = section_player
+                #         if player_index < 7:
+                #             player_index += 1
+                #         else:
+                #             player_index = 0
 
         pygame.display.update()
 
-    # Get players name
-
-    # Random seed / no seed
-
-    # Put names on Display
-
-    # Return seeded players 1v8 vs 4v5 - 3v6 vs 2v7
-    # plist = ["PLAYER 1", "PLAYER 8", "PLAYER 4", "PLAYER 5", "PLAYER 3", "PLAYER 6", "PLAYER 2", "PLAYER 7"]
     plist = [str(Players[0]).strip(), str(Players[7]).strip(), str(Players[3]).strip(), str(Players[4]).strip(),
              str(Players[2]).strip(), str(Players[5]).strip(), str(Players[1]).strip(), str(Players[6]).strip()]
-    print("Original list : ",  plist)
     if not seed_toggle:
         random.shuffle(plist)  # shuffle method
-        print("List after first shuffle  : ", plist)
     wlist = [""] * 6
     plist.extend(wlist)
     # setlist = [3] * 8 + [5] * 4 + [7] * 2
@@ -776,45 +950,40 @@ def main():
         #   player_list: for seeded players and winners
         #   scores: score list as they are entered
         for event in pygame.event.get():  # event handling loop
-            # print(event)
+            print(event)
+            print(check_button(event, START))
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE) or \
-                    (event.type == pygame.JOYBUTTONDOWN and joystick.get_button(9)):  # START
+                    (event.type == pygame.JOYBUTTONDOWN and event.button == 9):  # START
                 pygame.quit()
                 sys.exit()
 
-            if (event.type == KEYUP and event.key == K_DOWN) or \
-                    (event.type == pygame.JOYAXISMOTION and joystick.get_axis(1) > JVT):  # DOWN
+            if check_button(event, DOWN):
                 if currentgame == 7:
                     currentgame = 1
                 else:
                     currentgame += 1
 
-            if (event.type == KEYUP and event.key == K_UP) or \
-                    (event.type == pygame.JOYAXISMOTION and joystick.get_axis(1) < -JVT):  # UP
+            if check_button(event, UP):
                 if currentgame == 1:
                     currentgame = 7
                 else:
                     currentgame -= 1
 
-            if (event.type == KEYUP and event.key == K_x) or \
-                    (event.type == pygame.JOYBUTTONDOWN and joystick.get_button(8)):  # SELECT
+            if check_button(event, SELECT):
                 if correction:
                     correction = False
                 else:
                     correction = True
-            if (event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT)) or \
-                    (event.type == pygame.JOYAXISMOTION and
-                        (joystick.get_axis(0) < -JVT or joystick.get_axis(0) > JVT)):  # LEFT & RIGHT
-                if (event.type == KEYUP and event.key == K_LEFT) or \
-                        (event.type == pygame.JOYAXISMOTION and joystick.get_axis(0) < -JVT):  # LEFT
+
+            if check_button(event, LEFT) or check_button(event, RIGHT):
+                if check_button(event, LEFT):
                     if correction:
                         scores[currentgame*2-2] -= 1
                         correction = False
                     else:
                         scores[currentgame * 2 - 2] += 1
 
-                if (event.type == KEYUP and event.key == K_RIGHT) or \
-                        (event.type == pygame.JOYAXISMOTION and joystick.get_axis(0) > JVT):  # RIGHT
+                if check_button(event, RIGHT):
                     if correction:
                         scores[currentgame*2-1] -= 1
                         correction = False
